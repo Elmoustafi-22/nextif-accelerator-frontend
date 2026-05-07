@@ -22,23 +22,23 @@ const Button = ({
   ...props
 }: ButtonProps) => {
   const variants = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm",
-    secondary: "bg-neutral-900 text-white hover:bg-neutral-800",
-    outline: "border border-neutral-200 bg-white hover:bg-neutral-50",
-    ghost: "hover:bg-neutral-100",
-    danger: "bg-red-500 text-white hover:bg-red-600",
+    primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-600/20",
+    secondary: "bg-slate-900 text-white hover:bg-slate-800",
+    outline: "border border-slate-200 bg-white hover:bg-slate-50 text-slate-700",
+    ghost: "text-slate-600 hover:bg-slate-100",
+    danger: "bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20",
   };
 
   const sizes = {
-    sm: "h-8 px-3 text-xs",
+    sm: "h-9 px-4 text-xs",
     md: "h-11 px-6 text-sm",
-    lg: "h-13 px-8 text-base",
+    lg: "h-14 px-8 text-base",
   };
 
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center rounded-xl font-heading font-medium transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100",
+        "inline-flex items-center justify-center rounded-2xl font-heading font-semibold transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100",
         variants[variant],
         sizes[size],
         className

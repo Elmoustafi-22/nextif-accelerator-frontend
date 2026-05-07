@@ -16,6 +16,7 @@ import { cn } from "../utils/cn";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNotificationStore } from "../store/useNotificationStore";
 import NotificationDropdown from "./NotificationDropdown";
+import { motion } from "framer-motion";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(
@@ -75,11 +76,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] flex">
+    <div className="min-h-screen bg-slate-50 flex">
       {/* Mobile Backdrop */}
       {effectiveOpen && window.innerWidth < 768 && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 md:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -87,7 +88,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "bg-prussian-blue border-r border-blue-700 flex flex-col transition-all duration-300 z-50 fixed md:sticky top-0 h-screen",
+          "bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300 z-50 fixed md:sticky top-0 h-screen",
           effectiveOpen
             ? "translate-x-0 w-72"
             : "-translate-x-full md:translate-x-0 md:w-20"
@@ -95,16 +96,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="p-2 flex items-center gap-3 justify-center">
+        <div className="p-6 flex items-center gap-3 justify-center relative">
           {effectiveOpen ? (
-            <span className="font-bold text-xl tracking-tight text-neutral-900">
+            <div className="flex items-center gap-3 w-full animate-in fade-in slide-in-from-left-4 duration-500">
               <img
                 src="/images/nextif-logo-lg.png"
                 alt="logo"
-                title="logo"
-                className="h-10 w-auto"
+                className="h-10 w-auto rounded-xl"
               />
-            </span>
+              <span className="font-heading font-black text-white tracking-tight text-xl">
+                NextIF
+              </span>
+            </div>
           ) : (
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -112,9 +115,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             >
               <img
                 src="/images/nextif-logo-3.png"
-                title="mini-logo"
                 alt="mini-logo"
-                className="size-12 pt-1 hidden md:block"
+                className="size-10 rounded-lg hover:scale-110 transition-transform"
               />
             </button>
           )}
@@ -122,33 +124,26 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           {/* Mobile Close Button */}
           <button
             onClick={() => setIsSidebarOpen(false)}
-            className="absolute top-4 right-4 p-2 text-blue-300 md:hidden"
+            className="absolute top-6 right-4 p-2 text-slate-400 hover:text-white transition-colors md:hidden"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
 
-          {/* Desktop Toggle Button - Only visible when open OR effectively open due to hover */}
-          {/* We want to show the close button if it's effectively open so user can pin/unpin or close it */}
-          <button
-            onClick={() => {
-              if (isSidebarOpen) {
-                // If it's pinned open, unpin it
-                setIsSidebarOpen(false);
-                // And remove hover state so it collapses immediately
+          {/* Desktop Toggle Button */}
+          {effectiveOpen && (
+            <button
+              onClick={() => {
+                setIsSidebarOpen(!isSidebarOpen);
                 setIsHovered(false);
-              } else {
-                // If it's closed (but maybe hovered), pin it open
-                setIsSidebarOpen(true);
-                setIsHovered(false);
-              }
-            }}
-            className="p-2 cursor-pointer transition-colors text-neutral-400 hidden md:block absolute right-2 top-3"
-          >
-            {effectiveOpen ? <X size={24} className="text-blue-300" /> : null}
-          </button>
+              }}
+              className="hidden md:flex p-2 text-slate-500 hover:text-white hover:bg-slate-800 rounded-xl transition-all absolute right-4"
+            >
+              <Menu size={18} />
+            </button>
+          )}
         </div>
 
-        <nav className="flex-1 px-4 mt-8 space-y-2 overflow-y-auto">
+        <nav className="flex-1 px-4 mt-6 space-y-1.5 overflow-y-auto custom-scrollbar">
           {links.map((link) => {
             const isActive = location.pathname === link.href;
             return (
@@ -156,38 +151,43 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 key={link.name}
                 to={link.href}
                 className={cn(
-                  "flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group",
+                  "flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group relative overflow-hidden",
                   isActive
-                    ? "bg-blue-600 text-white shadow-xl shadow-blue-600/20"
-                    : "text-blue-300 hover:bg-neutral-50 hover:text-neutral-900"
+                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
+                    : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-100"
                 )}
               >
                 <link.icon
                   className={cn(
-                    "w-5 h-5 shrink-0",
-                    isActive
-                      ? "text-white"
-                      : "text-blue-300 group-hover:text-blue-600"
+                    "w-5 h-5 shrink-0 transition-transform duration-300 group-hover:scale-110",
+                    isActive ? "text-white" : "text-slate-400 group-hover:text-indigo-400"
                   )}
                 />
                 {(effectiveOpen || window.innerWidth < 768) && (
-                  <span className="font-heading font-bold text-sm">
+                  <span className="font-heading font-bold text-sm tracking-wide">
                     {link.name}
                   </span>
+                )}
+                {isActive && (
+                  <motion.div
+                    layoutId="sidebar-active"
+                    className="absolute inset-0 bg-indigo-600 -z-10"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
                 )}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 mt-auto">
+        <div className="p-4 mt-auto border-t border-slate-800/50">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-4 w-full px-4 py-3.5 text-neutral-500 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all group"
+            className="flex items-center gap-4 w-full px-4 py-3.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-2xl transition-all group"
           >
-            <LogOut className="w-5 h-5 group-hover:text-red-600 shrink-0" />
+            <LogOut className="w-5 h-5 group-hover:translate-x-1 transition-transform shrink-0" />
             {(effectiveOpen || window.innerWidth < 768) && (
-              <span className="font-heading font-bold text-blue-300 text-sm">
+              <span className="font-heading font-bold text-sm tracking-wide">
                 Sign Out
               </span>
             )}
@@ -197,44 +197,53 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 md:h-20 bg-royal-blue/10 backdrop-blur-md border-b border-neutral-100 px-4 md:px-8 flex items-center justify-between sticky top-0 z-30">
-          <button
-            className="md:hidden text-neutral-500 p-2 -ml-2"
-            onClick={() => setIsSidebarOpen(true)}
-          >
-            <Menu size={24} />
-          </button>
+        <header className="h-20 bg-white/70 backdrop-blur-xl border-b border-slate-200/60 px-6 md:px-10 flex items-center justify-between sticky top-0 z-30 transition-all">
+          <div className="flex items-center gap-4">
+            <button
+              className="md:hidden text-slate-600 p-2 hover:bg-slate-100 rounded-xl transition-colors"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu size={24} />
+            </button>
+            <div className="hidden md:block">
+              <h2 className="text-xl font-heading font-black text-slate-900">
+                {links.find((l) => l.href === location.pathname)?.name || "Dashboard"}
+              </h2>
+            </div>
+          </div>
 
-          <div className="flex-1 flex justify-end items-center gap-3 md:gap-4">
-            <div className="relative">
+          <div className="flex items-center gap-3 md:gap-6">
+            <div className="relative group">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleDropdown();
                 }}
-                className="w-10 h-10 flex items-center justify-center text-neutral-400 hover:text-neutral-900 transition-colors relative"
+                className="w-11 h-11 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all relative"
               >
-                <Bell size={20} />
+                <Bell size={20} className="group-hover:rotate-12 transition-transform" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white ring-2 ring-white"></span>
+                  <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-indigo-600 rounded-full border-2 border-white animate-pulse shadow-sm"></span>
                 )}
               </button>
               <NotificationDropdown />
             </div>
-            <div className="h-6 w-px bg-neutral-100 mx-1 md:mx-2"></div>
+            
+            <div className="h-8 w-px bg-slate-200/80"></div>
+            
             <Link
               to="/profile"
-              className="flex items-center gap-2 md:gap-3 pl-1 md:pl-2 hover:bg-neutral-50 p-1.5 md:p-2 rounded-2xl transition-all group"
+              className="flex items-center gap-3 pl-2 pr-1 py-1 hover:bg-slate-50 rounded-[1.25rem] transition-all group"
             >
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-neutral-900 leading-none group-hover:text-blue-600 transition-colors">
+                <p className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
                   {user?.firstName} {user?.lastName}
                 </p>
-                <p className="text-[10px] font-bold text-blue-600 uppercase mt-1 tracking-wider">
+                <p className="text-[10px] font-black text-indigo-600/70 uppercase tracking-[0.1em] mt-0.5">
                   {user?.role}
                 </p>
               </div>
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-neutral-900 rounded-xl flex items-center justify-center text-white font-bold text-xs ring-2 md:ring-4 ring-neutral-50 group-hover:ring-blue-50 group-hover:bg-blue-600 transition-all overflow-hidden shrink-0">
+              <div className="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-bold text-sm ring-4 ring-slate-100 group-hover:ring-indigo-100 group-hover:bg-indigo-600 transition-all overflow-hidden shrink-0 shadow-sm">
                 {user?.avatar ? (
                   <img
                     src={user.avatar}
@@ -252,7 +261,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </header>
 
-        <div className="p-4 md:p-8 pb-12">{children}</div>
+        <div className="p-6 md:p-10 pb-20 max-w-[1600px] mx-auto w-full">
+          {children}
+        </div>
       </main>
     </div>
   );

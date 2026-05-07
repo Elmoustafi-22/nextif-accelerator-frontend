@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import { cn } from "../utils/cn";
-import Button from "../components/Button";
+import { motion } from "framer-motion";
 
 const TasksPage = () => {
   const [tasks, setTasks] = useState([]);
@@ -53,27 +53,27 @@ const TasksPage = () => {
   });
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="space-y-10 animate-in fade-in duration-700">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
         <div>
-          <h1 className="text-3xl font-bold font-heading text-neutral-900 tracking-tight">
-            Your Tasks
+          <h1 className="text-4xl font-black font-heading text-slate-900 tracking-tight">
+            Mission Hub
           </h1>
-          <p className="text-neutral-500 mt-1 font-heading">
+          <p className="text-slate-500 mt-2 font-medium text-lg">
             {activeTab === "active"
-              ? "View and complete your currently assigned tasks."
-              : "Review your past task history and submissions."}
+              ? "Track and manage your active operations."
+              : "Review your operational history and achievements."}
           </p>
         </div>
 
-        <div className="flex items-center gap-3 bg-white p-1.5 rounded-2xl border border-neutral-100 shadow-sm">
+        <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm self-start">
           <button
             onClick={() => setActiveTab("active")}
             className={cn(
-              "px-6 py-2.5 rounded-xl text-sm font-bold font-heading transition-all flex items-center gap-2",
+              "px-8 py-3 rounded-xl text-sm font-black font-heading transition-all duration-300 flex items-center gap-2.5",
               activeTab === "active"
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
-                : "text-neutral-500 hover:text-neutral-900"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 scale-105"
+                : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
             )}
           >
             <Clock size={16} /> Active
@@ -81,10 +81,10 @@ const TasksPage = () => {
           <button
             onClick={() => setActiveTab("history")}
             className={cn(
-              "px-6 py-2.5 rounded-xl text-sm font-bold font-heading transition-all flex items-center gap-2",
+              "px-8 py-3 rounded-xl text-sm font-black font-heading transition-all duration-300 flex items-center gap-2.5",
               activeTab === "history"
-                ? "bg-neutral-900 text-white shadow-lg shadow-neutral-200"
-                : "text-neutral-500 hover:text-neutral-900"
+                ? "bg-slate-900 text-white shadow-lg shadow-slate-900/20 scale-105"
+                : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
             )}
           >
             <History size={16} /> History
@@ -92,29 +92,29 @@ const TasksPage = () => {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="relative w-full sm:max-w-md">
+      <div className="flex flex-col sm:flex-row gap-6 items-center justify-between">
+        <div className="relative w-full sm:max-w-md group">
           <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors"
             size={18}
           />
           <input
             type="text"
-            placeholder="Search by task title..."
+            placeholder="Search missions..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-white border border-neutral-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+            className="w-full pl-11 pr-5 py-4 bg-white border border-slate-100 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600/20 transition-all shadow-sm placeholder:text-slate-300"
           />
         </div>
 
-        <div className="flex items-center bg-white p-1 rounded-xl border border-neutral-100 shadow-sm">
+        <div className="flex items-center bg-white p-1.5 rounded-2xl border border-slate-100 shadow-sm">
           <button
             onClick={() => setView("grid")}
             className={cn(
-              "p-2 rounded-lg transition-all",
+              "p-2.5 rounded-xl transition-all duration-300",
               view === "grid"
-                ? "bg-neutral-100 text-blue-600"
-                : "text-neutral-400 hover:text-neutral-600"
+                ? "bg-slate-100 text-indigo-600 shadow-inner"
+                : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
             )}
           >
             <LayoutGrid size={20} />
@@ -122,10 +122,10 @@ const TasksPage = () => {
           <button
             onClick={() => setView("list")}
             className={cn(
-              "p-2 rounded-lg transition-all",
+              "p-2.5 rounded-xl transition-all duration-300",
               view === "list"
-                ? "bg-neutral-100 text-blue-600"
-                : "text-neutral-400 hover:text-neutral-600"
+                ? "bg-slate-100 text-indigo-600 shadow-inner"
+                : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
             )}
           >
             <List size={20} />
@@ -134,43 +134,46 @@ const TasksPage = () => {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="h-64 bg-white rounded-3xl border border-neutral-100 animate-pulse"
+              className="h-80 bg-white rounded-[2.5rem] border border-slate-100 animate-pulse"
             />
           ))}
         </div>
       ) : filteredTasks.length === 0 ? (
-        <div className="bg-white border border-neutral-100 rounded-[3rem] p-20 text-center shadow-sm">
-          <div className="w-24 h-24 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Filter className="text-neutral-300" size={40} />
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white border border-slate-100 rounded-[3rem] p-24 text-center shadow-sm"
+        >
+          <div className="w-28 h-28 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
+            <Filter className="text-slate-300" size={48} />
           </div>
-          <h2 className="text-2xl font-bold text-neutral-900">
-            No tasks found
+          <h2 className="text-3xl font-black text-slate-900 font-heading tracking-tight">
+            No missions detected
           </h2>
-          <p className="text-neutral-500 mt-2 max-w-sm mx-auto">
+          <p className="text-slate-500 mt-4 max-w-sm mx-auto font-medium text-lg">
             {searchQuery
-              ? "We couldn't find any tasks matching your search."
+              ? "We couldn't find any missions matching your current search parameters."
               : activeTab === "active"
-              ? "You don't have any active tasks right now. Great job!"
-              : "You haven't completed any tasks yet."}
+              ? "Your mission log is clear. All objectives have been neutralized!"
+              : "No historical records found in your mission archives."}
           </p>
           {searchQuery && (
-            <Button
-              variant="outline"
-              className="mt-8"
+            <button
+              className="mt-10 px-8 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-indigo-600 transition-colors shadow-lg shadow-slate-900/10"
               onClick={() => setSearchQuery("")}
             >
-              Clear Search
-            </Button>
+              Reset Search Filter
+            </button>
           )}
-        </div>
+        </motion.div>
       ) : (
         <div
           className={cn(
-            "gap-6",
+            "gap-8",
             view === "grid"
               ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
               : "flex flex-col"
@@ -181,94 +184,95 @@ const TasksPage = () => {
               key={task._id}
               to={`/tasks/${task._id}`}
               className={cn(
-                "bg-white rounded-[2.5rem] border border-neutral-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group overflow-hidden flex flex-col",
-                view === "list" && "md:flex-row md:items-center md:p-4"
+                "bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-2 transition-all duration-500 group overflow-hidden flex flex-col",
+                view === "list" && "md:flex-row md:items-center md:p-2"
               )}
             >
               <div
                 className={cn(
-                  "p-8 flex-1",
-                  view === "list" && "p-0 flex flex-row items-center gap-6"
+                  "p-10 flex-1",
+                  view === "list" && "p-4 flex flex-row items-center gap-8"
                 )}
               >
                 <div
                   className={cn(
-                    "w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all group-hover:scale-110 shadow-sm",
+                    "w-20 h-20 rounded-[1.75rem] flex items-center justify-center mb-8 transition-all duration-500 group-hover:scale-110 shadow-sm relative overflow-hidden",
                     task.status === "COMPLETED"
-                      ? "bg-green-50 text-green-600"
+                      ? "bg-emerald-50 text-emerald-600"
                       : task.status === "REDO"
                       ? "bg-amber-50 text-amber-600"
                       : task.isBonus
-                      ? "bg-purple-50 text-purple-600"
-                      : "bg-blue-50 text-blue-600",
+                      ? "bg-fuchsia-50 text-fuchsia-600"
+                      : "bg-indigo-50 text-indigo-600",
                     view === "list" && "mb-0 shrink-0"
                   )}
                 >
+                  <div className="absolute inset-0 bg-white/40 opacity-0 group-hover:opacity-100 transition-opacity" />
                   {task.status === "COMPLETED" ? (
-                    <CheckCircle2 size={32} />
+                    <CheckCircle2 size={36} className="relative z-10" />
                   ) : (
-                    <Clock size={32} />
+                    <Clock size={36} className="relative z-10" />
                   )}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-xl font-bold font-heading text-neutral-900 group-hover:text-blue-600 transition-colors truncate">
+                  <div className="flex items-start justify-between mb-3 gap-4">
+                    <h3 className="text-2xl font-black font-heading text-slate-900 group-hover:text-indigo-600 transition-colors truncate tracking-tight">
                       {task.title}
                     </h3>
                     {task.isBonus && (
-                      <span className="px-2 py-1 bg-purple-100 text-purple-700 text-[8px] font-black font-heading uppercase rounded-lg tracking-widest shrink-0">
+                      <span className="px-3 py-1 bg-fuchsia-100 text-fuchsia-700 text-[9px] font-black font-heading uppercase rounded-lg tracking-widest shrink-0 border border-fuchsia-200 shadow-sm">
                         Bonus
                       </span>
                     )}
                   </div>
 
-                  <p className="text-sm text-neutral-500 line-clamp-2 mb-6 leading-relaxed">
+                  <p className="text-base text-slate-500 line-clamp-2 mb-8 leading-relaxed font-medium">
                     {task.description}
                   </p>
 
                   <div className="flex flex-wrap items-center gap-4 font-heading">
-                    <div className="flex items-center gap-2 text-xs font-bold text-neutral-400 bg-neutral-50 px-3 py-1.5 rounded-full">
-                      <Calendar size={14} />
+                    <div className="flex items-center gap-2.5 text-[10px] font-black text-slate-400 bg-slate-50 px-4 py-2 rounded-xl uppercase tracking-widest border border-slate-100">
+                      <Calendar size={14} className="text-slate-300" />
                       {new Date(task.dueDate).toLocaleDateString()}
                     </div>
-                    <div className="flex items-center gap-2 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full">
-                      <TrendingUp size={14} />
+                    <div className="flex items-center gap-2.5 text-[10px] font-black text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl uppercase tracking-widest border border-indigo-100">
+                      <TrendingUp size={14} className="text-indigo-400" />
                       {task.rewardPoints} XP
                     </div>
                     <span
                       className={cn(
-                        "px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border",
+                        "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border shadow-sm",
                         task.status === "COMPLETED"
-                          ? "bg-green-50 border-green-100 text-green-700"
+                          ? "bg-emerald-50 border-emerald-100 text-emerald-700"
                           : task.status === "REDO"
-                          ? "bg-amber-50 border-amber-100 text-amber-700 underline decoration-amber-300"
+                          ? "bg-amber-50 border-amber-100 text-amber-700 underline underline-offset-4 decoration-amber-300"
                           : "bg-amber-50 border-amber-100 text-amber-700"
                       )}
                     >
                       {task.status === "REDO"
                         ? "Redo Required"
-                        : task.status || "Pending"}
+                        : task.status || "In Progress"}
                     </span>
                   </div>
                 </div>
               </div>
 
               {view === "grid" && (
-                <div className="px-8 py-5 bg-neutral-50/50 border-t border-neutral-100 flex items-center justify-between mt-auto">
-                  <p className="text-[10px] font-black uppercase tracking-tighter text-neutral-400">
-                    {task.verificationType} Verification
+                <div className="px-10 py-6 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between mt-auto group-hover:bg-white transition-colors">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    {task.verificationType} Protocol
                   </p>
-                  <div className="flex items-center gap-1 text-blue-600 text-xs font-bold group-hover:translate-x-1 transition-transform">
-                    View Details <ChevronRight size={14} />
+                  <div className="flex items-center gap-2 text-indigo-600 text-xs font-black uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                    Briefing <ChevronRight size={16} />
                   </div>
                 </div>
               )}
 
               {view === "list" && (
-                <div className="pr-4 py-4 md:py-0">
-                  <div className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-neutral-300 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                    <ChevronRight size={20} />
+                <div className="pr-8 py-4 md:py-0">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-indigo-600 group-hover:text-white group-hover:shadow-lg group-hover:shadow-indigo-600/30 transition-all duration-300">
+                    <ChevronRight size={24} />
                   </div>
                 </div>
               )}

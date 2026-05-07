@@ -22,6 +22,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import axiosInstance from "../api/axiosInstance";
+import { motion } from "framer-motion";
 
 const ProfilePage = () => {
   const { user, updateUser } = useAuthStore();
@@ -193,93 +194,117 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold font-heading text-neutral-900">
-          Your Profile
+    <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in duration-700">
+      <div className="space-y-2">
+        <h1 className="text-4xl font-black font-heading text-slate-900 tracking-tight">
+          Personnel Profile
         </h1>
-        <p className="text-neutral-500 text-sm mt-1 font-heading">
-          Manage your personal information and account settings.
+        <p className="text-slate-500 font-medium text-lg">
+          Manage your operational credentials and account preferences.
         </p>
       </div>
 
       {(success || error) && (
-        <div
-          className={`p-4 rounded-2xl flex items-center gap-3 font-bold font-heading text-sm ${success ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
-            }`}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`p-5 rounded-[2rem] flex items-center gap-4 font-black font-heading text-sm shadow-sm border ${
+            success 
+              ? "bg-emerald-50 text-emerald-700 border-emerald-100" 
+              : "bg-rose-50 text-rose-700 border-rose-100"
+          }`}
         >
-          {success ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
-          {success ? "Profile updated successfully!" : error}
-        </div>
+          {success ? (
+            <div className="p-2 bg-white rounded-xl shadow-sm text-emerald-600">
+              <CheckCircle2 size={20} />
+            </div>
+          ) : (
+            <div className="p-2 bg-white rounded-xl shadow-sm text-rose-600">
+              <AlertCircle size={20} />
+            </div>
+          )}
+          <span className="tracking-tight">
+            {success ? "Operational profile updated successfully!" : error}
+          </span>
+        </motion.div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Left Column - Card */}
-        <div className="space-y-6">
-          <div className="bg-white rounded-3xl border border-neutral-100 p-8 shadow-sm text-center">
-            <div className="relative inline-block mb-4">
-              <div className="w-32 h-32 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-4xl font-bold border-4 border-white shadow-xl overflow-hidden">
-                {formData.avatar ? (
-                  <img
-                    src={formData.avatar}
-                    alt="Avatar"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>
-                    {user?.firstName?.[0]}
-                    {user?.lastName?.[0]}
-                  </span>
-                )}
-                {uploading && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <Loader2 className="animate-spin text-white" size={24} />
-                  </div>
-                )}
+        <div className="space-y-8">
+          <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-sm text-center relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-24 bg-slate-50 border-b border-slate-100" />
+            
+            <div className="relative z-10">
+              <div className="relative inline-block mb-6">
+                <div className="w-36 h-36 bg-white rounded-[2.5rem] flex items-center justify-center text-4xl font-black border-8 border-white shadow-2xl overflow-hidden group-hover:scale-105 transition-transform duration-500">
+                  {formData.avatar ? (
+                    <img
+                      src={formData.avatar}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                      {user?.firstName?.[0]}
+                      {user?.lastName?.[0]}
+                    </div>
+                  )}
+                  {uploading && (
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center">
+                      <Loader2 className="animate-spin text-white" size={32} />
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="absolute bottom-2 right-2 p-3 bg-indigo-600 text-white rounded-2xl border-4 border-white shadow-xl hover:scale-110 active:scale-95 transition-all"
+                >
+                  <Camera size={20} />
+                </button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="hidden"
+                  accept="image/*"
+                />
               </div>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="absolute bottom-0 right-0 p-2 bg-blue-600 text-white rounded-full border-4 border-white shadow-lg hover:scale-110 transition-transform"
-              >
-                <Camera size={18} />
-              </button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                className="hidden"
-                accept="image/*"
-              />
-            </div>
-            <h2 className="text-xl font-bold font-heading text-neutral-900">
-              {user?.firstName} {user?.lastName}
-            </h2>
-            <p className="text-neutral-500 text-sm font-heading mb-6">
-              Fellows
-            </p>
+              
+              <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
+                {user?.firstName} {user?.lastName}
+              </h2>
+              <p className="text-indigo-600 text-sm font-black font-heading uppercase tracking-[0.2em] mt-2 opacity-80">
+                Official Fellow
+              </p>
 
-            <div className="flex items-center justify-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-xl text-xs font-bold font-heading uppercase tracking-wider">
-              <CheckCircle2 size={14} /> Verified Account
+              <div className="mt-8 flex items-center justify-center gap-2.5 px-5 py-2.5 bg-emerald-50 text-emerald-700 rounded-2xl text-[10px] font-black font-heading uppercase tracking-widest border border-emerald-100 shadow-sm">
+                <Shield size={14} /> Verified Credential
+              </div>
             </div>
           </div>
 
-          <div className="bg-neutral-900 rounded-3xl p-8 text-white shadow-xl shadow-neutral-900/10">
-            <div className="flex items-center gap-3 mb-4 font-heading">
-              <Shield className="text-blue-400" />
-              <h3 className="font-bold">Security</h3>
+          <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-slate-900/20 relative overflow-hidden group">
+            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 bg-white/10 rounded-2xl">
+                  <Shield className="text-indigo-400" size={24} />
+                </div>
+                <h3 className="text-xl font-black font-heading tracking-tight">Security Vault</h3>
+              </div>
+              <p className="text-sm text-slate-400 mb-8 leading-relaxed font-medium">
+                Your operational data is protected by enterprise-grade encryption. Update your access codes regularly.
+              </p>
+              <button
+                onClick={() => setShowPasswordModal(true)}
+                className="w-full py-4 bg-white/5 hover:bg-white text-white hover:text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all border border-white/10 hover:border-white shadow-lg active:scale-95"
+              >
+                Reset Access Code
+              </button>
             </div>
-            <p className="text-xs text-gray-200 mb-6 leading-relaxed">
-              Your account is secured with end-to-end encryption. You can change
-              your password at any time.
-            </p>
-            <Button
-              variant="ghost"
-              onClick={() => setShowPasswordModal(true)}
-              className="w-full bg-white/10 hover:bg-white/20 text-white border-none text-xs cursor-pointer"
-            >
-              Change Password
-            </Button>
           </div>
         </div>
 
@@ -287,113 +312,142 @@ const ProfilePage = () => {
         <div className="lg:col-span-2">
           <form
             onSubmit={handleSubmit}
-            className="bg-white rounded-3xl border border-neutral-100 p-8 shadow-sm space-y-8"
+            className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-sm space-y-10"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
+                <h3 className="text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em]">
+                  Personal Data
+                </h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <Input
+                  label="First Name"
+                  value={formData.firstName}
+                  disabled
+                  icon={<User size={18} />}
+                />
+                <Input
+                  label="Last Name"
+                  value={formData.lastName}
+                  disabled
+                  icon={<User size={18} />}
+                />
+              </div>
+
               <Input
-                label="First Name"
-                value={formData.firstName}
+                label="Primary Email"
+                type="email"
+                value={formData.email}
                 disabled
-                icon={<User size={16} className="text-neutral-400" />}
-              />
-              <Input
-                label="Last Name"
-                value={formData.lastName}
-                disabled
-                icon={<User size={16} className="text-neutral-400" />}
+                icon={<Mail size={18} />}
               />
             </div>
 
-            <Input
-              label="Email Address"
-              type="email"
-              value={formData.email}
-              disabled
-              icon={<Mail size={16} className="text-neutral-400" />}
-            />
+            <div className="h-px bg-slate-50 w-full" />
 
-            <div className="h-px bg-neutral-50"></div>
+            <div className="space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
+                <h3 className="text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em]">
+                  Operational Info
+                </h3>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input
-                label="Phone Number"
-                placeholder="+234 ..."
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-                icon={<Phone size={16} className="text-neutral-400" />}
-              />
-              <Input
-                label="Institution"
-                placeholder="Institution Name"
-                value={formData.institution}
-                disabled
-                icon={<MapPin size={16} className="text-neutral-400" />}
-              />
-              <Input
-                label="Course of Study"
-                placeholder="Course of Study"
-                value={formData.courseOfStudy}
-                disabled
-                icon={<User size={16} className="text-neutral-400" />}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <Input
+                  label="Contact Phone"
+                  placeholder="+234 ..."
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  icon={<Phone size={18} />}
+                />
+                <Input
+                  label="Home Institution"
+                  placeholder="Institution Name"
+                  value={formData.institution}
+                  disabled
+                  icon={<MapPin size={18} />}
+                />
+                <div className="md:col-span-2">
+                  <Input
+                    label="Active Specialization"
+                    placeholder="Course of Study"
+                    value={formData.courseOfStudy}
+                    disabled
+                    icon={<User size={18} />}
+                  />
+                </div>
+              </div>
             </div>
 
-            <div className="h-px bg-neutral-50"></div>
+            <div className="h-px bg-slate-50 w-full" />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input
-                label="Instagram Handle"
-                placeholder="@username"
-                value={formData.instagram}
-                onChange={(e) =>
-                  setFormData({ ...formData, instagram: e.target.value })
-                }
-                icon={<Instagram size={16} className="text-neutral-400" />}
-              />
-              <Input
-                label="Twitter Handle"
-                placeholder="@username"
-                value={formData.twitter}
-                onChange={(e) =>
-                  setFormData({ ...formData, twitter: e.target.value })
-                }
-                icon={<Twitter size={16} className="text-neutral-400" />}
-              />
-              <Input
-                label="LinkedIn Profile"
-                placeholder="linkedin.com/in/username"
-                value={formData.linkedin}
-                onChange={(e) =>
-                  setFormData({ ...formData, linkedin: e.target.value })
-                }
-                icon={<Linkedin size={16} className="text-neutral-400" />}
-              />
-              <Input
-                label="Facebook Handle"
-                placeholder="facebook.com/username"
-                value={formData.facebook}
-                onChange={(e) =>
-                  setFormData({ ...formData, facebook: e.target.value })
-                }
-                icon={<Facebook size={16} className="text-neutral-400" />}
-              />
+            <div className="space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
+                <h3 className="text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em]">
+                  Social Protocols
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <Input
+                  label="Instagram Protocol"
+                  placeholder="@username"
+                  value={formData.instagram}
+                  onChange={(e) =>
+                    setFormData({ ...formData, instagram: e.target.value })
+                  }
+                  icon={<Instagram size={18} />}
+                />
+                <Input
+                  label="Twitter Protocol"
+                  placeholder="@username"
+                  value={formData.twitter}
+                  onChange={(e) =>
+                    setFormData({ ...formData, twitter: e.target.value })
+                  }
+                  icon={<Twitter size={18} />}
+                />
+                <Input
+                  label="LinkedIn Link"
+                  placeholder="linkedin.com/in/username"
+                  value={formData.linkedin}
+                  onChange={(e) =>
+                    setFormData({ ...formData, linkedin: e.target.value })
+                  }
+                  icon={<Linkedin size={18} />}
+                />
+                <Input
+                  label="Facebook Link"
+                  placeholder="facebook.com/username"
+                  value={formData.facebook}
+                  onChange={(e) =>
+                    setFormData({ ...formData, facebook: e.target.value })
+                  }
+                  icon={<Facebook size={18} />}
+                />
+              </div>
             </div>
 
-            <div className="pt-4 flex items-center justify-between">
+            <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
               {success && (
-                <div className="flex items-center gap-2 text-green-600 font-bold font-heading text-sm animate-in fade-in slide-in-from-left-2">
-                  <CheckCircle2 size={18} /> Profile updated!
+                <div className="flex items-center gap-2 text-emerald-600 font-black font-heading text-[10px] uppercase tracking-widest animate-in fade-in slide-in-from-left-2">
+                  <CheckCircle2 size={16} /> Changes Synchronized
                 </div>
               )}
               <Button
                 type="submit"
-                className="ml-auto px-12 h-12"
+                className="ml-auto px-16 h-14 text-sm rounded-2xl shadow-xl shadow-indigo-600/20"
                 isLoading={loading}
-                rightIcon={<Save size={18} />}
+                rightIcon={<Save size={20} />}
               >
-                Save Changes
+                Commit Changes
               </Button>
             </div>
           </form>
@@ -402,8 +456,14 @@ const ProfilePage = () => {
 
       {/* Change Password Modal */}
       {showPasswordModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white rounded-[3rem] shadow-2xl max-w-lg w-full p-10 relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            
             <button
               onClick={() => {
                 setShowPasswordModal(false);
@@ -415,111 +475,111 @@ const ProfilePage = () => {
                   confirmPassword: "",
                 });
               }}
-              className="absolute top-6 right-6 p-2 hover:bg-neutral-100 rounded-full transition-colors"
+              className="absolute top-8 right-8 p-2.5 bg-slate-50 hover:bg-slate-100 rounded-full transition-all text-slate-400 hover:text-slate-900 z-20"
             >
-              <X size={20} className="text-neutral-500" />
+              <X size={20} />
             </button>
 
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-3 bg-blue-50 rounded-2xl">
-                <Lock className="text-blue-600" size={24} />
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-10">
+                <div className="p-4 bg-indigo-600 rounded-[1.5rem] shadow-lg shadow-indigo-600/20 text-white">
+                  <Lock size={28} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
+                    Reset Credentials
+                  </h2>
+                  <p className="text-sm text-slate-500 font-medium">
+                    Update your primary access code
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl font-bold font-heading text-neutral-900">
-                  Change Password
-                </h2>
-                <p className="text-sm text-neutral-500 font-heading">
-                  Update your account password
-                </p>
-              </div>
-            </div>
 
-            {passwordError && (
-              <div className="mb-4 p-4 rounded-2xl bg-red-50 text-red-700 flex items-center gap-3 text-sm font-bold font-heading">
-                <AlertCircle size={18} />
-                {passwordError}
-              </div>
-            )}
+              {passwordError && (
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="mb-8 p-5 rounded-2xl bg-rose-50 text-rose-700 border border-rose-100 flex items-center gap-4 text-xs font-black font-heading tracking-tight"
+                >
+                  <AlertCircle size={20} />
+                  {passwordError}
+                </motion.div>
+              )}
 
-            {passwordSuccess && (
-              <div className="mb-4 p-4 rounded-2xl bg-green-50 text-green-700 flex items-center gap-3 text-sm font-bold font-heading">
-                <CheckCircle2 size={18} />
-                Password changed successfully!
-              </div>
-            )}
+              {passwordSuccess && (
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="mb-8 p-5 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center gap-4 text-xs font-black font-heading tracking-tight"
+                >
+                  <CheckCircle2 size={20} />
+                  Access code synchronized!
+                </motion.div>
+              )}
 
-            <form onSubmit={handlePasswordChange} className="space-y-4">
-              <Input
-                label="Current Password"
-                type="password"
-                value={passwordData.currentPassword}
-                onChange={(e) =>
-                  setPasswordData({
-                    ...passwordData,
-                    currentPassword: e.target.value,
-                  })
-                }
-                icon={<Lock size={16} className="text-neutral-400" />}
-                required
-              />
-
-              <Input
-                label="New Password"
-                type="password"
-                value={passwordData.newPassword}
-                onChange={(e) =>
-                  setPasswordData({
-                    ...passwordData,
-                    newPassword: e.target.value,
-                  })
-                }
-                icon={<Lock size={16} className="text-neutral-400" />}
-                required
-              />
-
-              <Input
-                label="Confirm New Password"
-                type="password"
-                value={passwordData.confirmPassword}
-                onChange={(e) =>
-                  setPasswordData({
-                    ...passwordData,
-                    confirmPassword: e.target.value,
-                  })
-                }
-                icon={<Lock size={16} className="text-neutral-400" />}
-                required
-              />
-
-              <div className="flex gap-3 pt-4">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    setShowPasswordModal(false);
-                    setPasswordError("");
-                    setPasswordSuccess(false);
+              <form onSubmit={handlePasswordChange} className="space-y-6">
+                <Input
+                  label="Current Access Code"
+                  type="password"
+                  value={passwordData.currentPassword}
+                  onChange={(e) =>
                     setPasswordData({
-                      currentPassword: "",
-                      newPassword: "",
-                      confirmPassword: "",
-                    });
-                  }}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="flex-1"
-                  isLoading={passwordLoading}
-                  disabled={passwordLoading}
-                >
-                  Update Password
-                </Button>
-              </div>
-            </form>
-          </div>
+                      ...passwordData,
+                      currentPassword: e.target.value,
+                    })
+                  }
+                  icon={<Lock size={18} />}
+                  required
+                />
+
+                <Input
+                  label="New Access Code"
+                  type="password"
+                  value={passwordData.newPassword}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      newPassword: e.target.value,
+                    })
+                  }
+                  icon={<Lock size={18} />}
+                  required
+                />
+
+                <Input
+                  label="Confirm Access Code"
+                  type="password"
+                  value={passwordData.confirmPassword}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
+                  icon={<Lock size={18} />}
+                  required
+                />
+
+                <div className="flex gap-4 pt-8">
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswordModal(false)}
+                    className="flex-1 h-14 bg-slate-50 hover:bg-slate-100 text-slate-500 font-black text-[10px] uppercase tracking-widest rounded-2xl transition-all"
+                  >
+                    Abort
+                  </button>
+                  <Button
+                    type="submit"
+                    className="flex-[2] h-14 rounded-2xl shadow-xl shadow-indigo-600/20"
+                    isLoading={passwordLoading}
+                    disabled={passwordLoading}
+                  >
+                    Commit Reset
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </motion.div>
         </div>
       )}
     </div>

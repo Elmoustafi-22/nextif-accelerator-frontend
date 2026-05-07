@@ -28,92 +28,95 @@ const InboxPage = () => {
   ).length;
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Inbox</h1>
-          <p className="text-neutral-500 text-sm mt-1">
-            Manage your messages and system notifications.
-          </p>
-        </div>
+    <div className="max-w-6xl mx-auto space-y-10 animate-in fade-in duration-700">
+      <div className="space-y-2">
+        <h1 className="text-4xl font-black font-heading text-slate-900 tracking-tight">
+          Intelligence Center
+        </h1>
+        <p className="text-slate-500 font-medium text-lg">
+          Monitor your tactical communications and system-wide alerts.
+        </p>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] border border-neutral-100 shadow-sm overflow-hidden min-h-[600px] flex flex-col">
+      <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden min-h-[700px] flex flex-col relative group">
+        {/* Decorative background element */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        
         {/* Tabs */}
-        <div className="flex border-b border-neutral-50 px-4 sm:px-8 pt-2">
+        <div className="flex border-b border-slate-50 px-6 sm:px-12 pt-4 relative z-10 bg-slate-50/30">
           <button
             onClick={() => setTab("messages")}
             className={cn(
-              "px-4 sm:px-8 py-3 sm:py-5 text-sm font-bold transition-all relative flex items-center gap-2",
+              "px-6 sm:px-10 py-5 sm:py-8 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative flex items-center gap-3",
               tab === "messages"
-                ? "text-blue-600"
-                : "text-neutral-400 hover:text-neutral-900"
+                ? "text-indigo-600"
+                : "text-slate-400 hover:text-slate-600"
             )}
           >
-            Direct Messages
+            Tactical Comms
             {unreadMessagesCount > 0 && (
-              <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full">
+              <span className="bg-indigo-600 text-white text-[10px] px-2.5 py-1 rounded-lg font-black shadow-lg shadow-indigo-600/20">
                 {unreadMessagesCount}
               </span>
             )}
             {tab === "messages" && (
               <motion.div
                 layoutId="tab"
-                className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full"
+                className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600 rounded-full shadow-[0_-2px_10px_rgba(79,70,229,0.3)]"
               />
             )}
           </button>
           <button
             onClick={() => setTab("notifications")}
             className={cn(
-              "px-4 sm:px-8 py-3 sm:py-5 text-sm font-bold transition-all relative flex items-center gap-2",
+              "px-6 sm:px-10 py-5 sm:py-8 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative flex items-center gap-3",
               tab === "notifications"
-                ? "text-blue-600"
-                : "text-neutral-400 hover:text-neutral-900"
+                ? "text-indigo-600"
+                : "text-slate-400 hover:text-slate-600"
             )}
           >
-            System Alerts
+            System Protocols
             {unreadNotificationsCount > 0 && (
-              <span className="bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded-full">
+              <span className="bg-indigo-600 text-white text-[10px] px-2.5 py-1 rounded-lg font-black shadow-lg shadow-indigo-600/20">
                 {unreadNotificationsCount}
               </span>
             )}
             {tab === "notifications" && (
               <motion.div
                 layoutId="tab"
-                className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full"
+                className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600 rounded-full shadow-[0_-2px_10px_rgba(79,70,229,0.3)]"
               />
             )}
           </button>
         </div>
 
         {/* List */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto relative z-10">
           {isLoading ? (
-            <div className="p-24 text-center">
-              <div className="w-16 h-16 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
-              <p className="mt-4 text-neutral-500 font-bold uppercase tracking-widest text-[10px]">
-                Loading Communications...
+            <div className="p-32 text-center">
+              <div className="w-14 h-14 border-4 border-indigo-600/10 border-t-indigo-600 rounded-full animate-spin mx-auto shadow-sm"></div>
+              <p className="mt-6 text-slate-400 font-black font-heading uppercase tracking-widest text-xs">
+                Synchronizing Intel...
               </p>
             </div>
           ) : filteredMessages.length === 0 ? (
-            <div className="p-24 text-center">
-              <div className="w-24 h-24 bg-blue-50 rounded-4xl flex items-center justify-center mx-auto mb-8 shadow-inner">
+            <div className="p-32 text-center animate-in fade-in zoom-in-95 duration-500">
+              <div className="w-24 h-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-inner border border-slate-100/50">
                 {tab === "messages" ? (
-                  <Mail size={48} className="text-blue-600" />
+                  <Mail size={40} className="text-slate-300" />
                 ) : (
-                  <Bell size={48} className="text-blue-600" />
+                  <Bell size={40} className="text-slate-300" />
                 )}
               </div>
-              <h3 className="text-xl font-bold text-neutral-900 tracking-tight">
-                Your {tab} is empty
+              <h3 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
+                Channel Secured
               </h3>
-              <p className="text-neutral-500 mt-2 max-w-xs mx-auto">
-                When you receive new {tab}, they will show up here.
+              <p className="text-slate-400 mt-3 max-w-sm mx-auto font-medium leading-relaxed">
+                No active {tab} recorded in current cycle. Intelligence database is clear.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-neutral-50">
+            <div className="divide-y divide-slate-50">
               {filteredMessages.map((item: any) => (
                 <div
                   key={item._id}
@@ -124,57 +127,57 @@ const InboxPage = () => {
                     }
                   }}
                   className={cn(
-                    "p-4 sm:p-8 hover:bg-neutral-50/50 transition-all cursor-pointer group flex items-start gap-4 sm:gap-6 border-l-4 border-transparent",
+                    "p-8 sm:p-12 hover:bg-slate-50 transition-all cursor-pointer group flex items-start gap-8 border-l-[6px] border-transparent relative",
                     !item.read &&
-                      "bg-blue-50/30 border-blue-600 shadow-[inset_1px_0_0_0_rgba(255,255,255,0.1)]"
+                      "bg-indigo-50/30 border-indigo-600"
                   )}
                 >
                   <div
                     className={cn(
-                      "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm",
+                      "w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-500 border",
                       item.type === "message" || item.type === "MESSAGE"
-                        ? "bg-blue-50 text-blue-600"
-                        : "bg-amber-50 text-amber-600"
+                        ? "bg-white text-indigo-600 border-indigo-50"
+                        : "bg-white text-amber-600 border-amber-50"
                     )}
                   >
                     {item.type === "message" || item.type === "MESSAGE" ? (
-                      <Mail size={28} />
+                      <Mail size={32} />
                     ) : (
-                      <Bell size={28} />
+                      <Bell size={32} />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-3">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-4">
                         <h4
                           className={cn(
-                            "font-bold truncate text-base",
-                            !item.read ? "text-neutral-900" : "text-neutral-400"
+                            "text-xl font-black tracking-tight",
+                            !item.read ? "text-slate-900" : "text-slate-400"
                           )}
                         >
                           {item.title}
                         </h4>
                         {!item.read && (
-                          <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
+                          <span className="w-2.5 h-2.5 bg-indigo-600 rounded-full animate-pulse shadow-[0_0_10px_rgba(79,70,229,0.8)]"></span>
                         )}
                       </div>
-                      <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest bg-neutral-100/50 px-3 py-1 rounded-full">
+                      <span className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] bg-slate-100 px-4 py-1.5 rounded-xl border border-slate-200/50">
                         {new Date(item.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                     <p
                       className={cn(
-                        "text-sm leading-relaxed",
+                        "text-lg leading-relaxed max-w-3xl",
                         !item.read
-                          ? "text-neutral-600 font-medium"
-                          : "text-neutral-400"
+                          ? "text-slate-600 font-bold"
+                          : "text-slate-400 font-medium"
                       )}
                     >
                       {item.body}
                     </p>
                   </div>
-                  <div className="text-neutral-200 group-hover:text-blue-500 transition-colors self-center">
-                    <ChevronRight size={24} />
+                  <div className="text-slate-200 group-hover:text-indigo-600 transition-all group-hover:translate-x-2 self-center">
+                    <ChevronRight size={32} />
                   </div>
                 </div>
               ))}

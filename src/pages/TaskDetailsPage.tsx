@@ -11,10 +11,12 @@ import {
   PlayCircle,
   FileText,
   ExternalLink,
+  ChevronRight,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import Button from "../components/Button";
 import { cn } from "../utils/cn";
+import { motion } from "framer-motion";
 
 const TaskDetailsPage = () => {
   const { id } = useParams();
@@ -204,165 +206,183 @@ const TaskDetailsPage = () => {
     return <div className="p-8 text-center text-red-500">Task not found.</div>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-neutral-500 hover:text-neutral-900 transition-colors font-medium border-none bg-transparent cursor-pointer"
+          className="group flex items-center gap-3 text-slate-400 hover:text-slate-900 transition-all font-bold text-sm border-none bg-transparent cursor-pointer"
         >
-          <ArrowLeft size={20} /> Back
+          <div className="p-2 bg-white rounded-xl border border-slate-100 group-hover:border-slate-200 shadow-sm transition-all">
+            <ArrowLeft size={18} />
+          </div>
+          Back to Missions
         </button>
 
         {sequence.length > 1 && (
-          <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-2xl border border-neutral-100 shadow-sm text-xs font-bold font-heading text-neutral-900">
-            <span className="text-neutral-400">Step</span>
-            <span>
-              {currentIndex + 1} of {sequence.length}
-            </span>
-            <div className="w-24 h-1.5 bg-neutral-100 rounded-full ml-2 overflow-hidden">
-              <div
-                className="h-full bg-blue-600 rounded-full transition-all duration-500"
-                style={{
-                  width: `${((currentIndex + 1) / sequence.length) * 100}%`,
-                }}
-              />
+          <div className="flex items-center gap-4 px-5 py-3 bg-white rounded-2xl border border-slate-100 shadow-sm text-xs font-black font-heading text-slate-900">
+            <span className="text-slate-300 uppercase tracking-widest">Protocol Progress</span>
+            <div className="flex items-center gap-3">
+              <span className="bg-indigo-50 text-indigo-600 px-2 py-1 rounded-lg">
+                {currentIndex + 1} / {sequence.length}
+              </span>
+              <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{
+                    width: `${((currentIndex + 1) / sequence.length) * 100}%`,
+                  }}
+                  className="h-full bg-indigo-600 rounded-full shadow-[0_0_10px_rgba(79,70,229,0.3)] transition-all duration-700"
+                />
+              </div>
             </div>
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white rounded-3xl border border-neutral-100 p-8 shadow-sm">
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h1 className="text-2xl font-bold font-heading text-neutral-900">
-                  {task.title}
-                </h1>
-                <div className="flex items-center gap-4 mt-2 text-sm font-heading">
-                  <span className="flex items-center gap-1.5 text-neutral-500">
-                    <Calendar size={16} /> Due{" "}
-                    {new Date(task.dueDate).toLocaleDateString()}
-                  </span>
-                  <span
-                    className={cn(
-                      "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
-                      task.verificationType === "AUTO"
-                        ? "bg-green-100 text-green-700"
-                        : task.status === "REDO"
-                        ? "bg-amber-100 text-amber-700"
-                        : "bg-blue-100 text-blue-700"
-                    )}
-                  >
-                    {task.status === "REDO"
-                      ? "Redo Required"
-                      : task.verificationType + " Verification"}
-                  </span>
-                  {task.isBonus && (
-                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-700">
-                      Bonus Task
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="lg:col-span-2 space-y-10">
+          <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-100/50 transition-colors" />
+            
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+                <div>
+                  <h1 className="text-3xl font-black font-heading text-slate-900 tracking-tight leading-tight">
+                    {task.title}
+                  </h1>
+                  <div className="flex flex-wrap items-center gap-4 mt-4 text-[10px] font-black font-heading uppercase tracking-widest">
+                    <span className="flex items-center gap-2 text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                      <Calendar size={14} className="text-slate-300" />
+                      Deadline: {new Date(task.dueDate).toLocaleDateString()}
                     </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="prose prose-neutral max-w-none">
-              <h3 className="text-sm font-bold font-heading text-neutral-400 uppercase tracking-widest mb-3">
-                Explanation
-              </h3>
-              <div className="text-neutral-600 leading-relaxed mb-8">
-                {renderFormattedText(task.explanation || task.description)}
-              </div>
-            </div>
-
-            {/* What to do Section - Only shown when completed and not editing */}
-            {task.status === "COMPLETED" &&
-              !isEditing &&
-              !isSuccess &&
-              (task.whatToDo || task.steps) && (
-                <div className="space-y-4 mb-8">
-                  <h3 className="text-sm font-bold font-heading text-neutral-400 uppercase tracking-widest flex items-center gap-2">
-                    <ListChecks size={18} className="text-blue-600" /> Task
-                    Completion Details
-                  </h3>
-                  <div className="space-y-6">
-                    {(task.whatToDo || task.steps).map(
-                      (item: any, index: number) => (
-                        <div
-                          key={index}
-                          className="space-y-3 p-6 bg-neutral-50 rounded-3xl border border-neutral-100/50"
-                        >
-                          <div className="flex gap-4">
-                            <div className="w-8 h-8 rounded-full bg-blue-600/10 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0">
-                              {index + 1}
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-neutral-900 mb-1">
-                                {item.title}
-                              </h4>
-                              <p className="text-xs text-neutral-500 leading-relaxed italic">
-                                {item.description}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="bg-white p-4 rounded-2xl border border-neutral-100 text-sm text-neutral-700 leading-relaxed">
-                            {responses[item._id] || "No response provided."}
-                          </div>
-                        </div>
-                      )
+                    <span
+                      className={cn(
+                        "px-3 py-1.5 rounded-xl border shadow-sm",
+                        task.verificationType === "AUTO"
+                          ? "bg-emerald-50 border-emerald-100 text-emerald-700"
+                          : task.status === "REDO"
+                          ? "bg-amber-50 border-amber-100 text-amber-700"
+                          : "bg-indigo-50 border-indigo-100 text-indigo-700"
+                      )}
+                    >
+                      {task.status === "REDO"
+                        ? "Action Required: Redo"
+                        : task.verificationType + " Protocol"}
+                    </span>
+                    {task.isBonus && (
+                      <span className="px-3 py-1.5 rounded-xl bg-fuchsia-50 border border-fuchsia-100 text-fuchsia-700 shadow-sm">
+                        Bonus Achievement
+                      </span>
                     )}
                   </div>
                 </div>
-              )}
+              </div>
 
-            {/* Materials Section */}
-            {task.materials && task.materials.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="text-sm font-bold font-heading text-neutral-400 uppercase tracking-widest flex items-center gap-2">
-                  <PlayCircle size={18} className="text-red-600" /> Learning
-                  Resources
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {task.materials.map((mat: any, index: number) => (
-                    <a
-                      key={index}
-                      href={mat.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-4 p-4 bg-white border border-neutral-100 rounded-2xl hover:border-blue-200 hover:shadow-md transition-all group"
-                    >
-                      <div
-                        className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                          mat.type === "VIDEO"
-                            ? "bg-blue-50 text-blue-600"
-                            : mat.type === "PDF"
-                            ? "bg-red-50 text-red-600"
-                            : "bg-green-50 text-green-600"
-                        )}
-                      >
-                        {mat.type === "VIDEO" ? (
-                          <PlayCircle size={20} />
-                        ) : mat.type === "PDF" ? (
-                          <FileText size={20} />
-                        ) : (
-                          <ExternalLink size={20} />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-neutral-900 truncate group-hover:text-blue-600 transition-colors">
-                          {mat.title}
-                        </p>
-                        <p className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider">
-                          {mat.type}
-                        </p>
-                      </div>
-                    </a>
-                  ))}
+              <div className="prose prose-slate max-w-none">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
+                  <h3 className="text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em]">
+                    Mission Briefing
+                  </h3>
+                </div>
+                <div className="text-slate-600 leading-relaxed text-lg font-medium mb-10">
+                  {renderFormattedText(task.explanation || task.description)}
                 </div>
               </div>
-            )}
+
+              {/* What to do Section - View Only */}
+              {task.status === "COMPLETED" &&
+                !isEditing &&
+                !isSuccess &&
+                (task.whatToDo || task.steps) && (
+                  <div className="space-y-6 mb-10">
+                    <h3 className="text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em] flex items-center gap-3">
+                      <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
+                        <ListChecks size={16} />
+                      </div>
+                      Deployment Records
+                    </h3>
+                    <div className="space-y-6">
+                      {(task.whatToDo || task.steps).map(
+                        (item: any, index: number) => (
+                          <div
+                            key={index}
+                            className="space-y-4 p-8 bg-slate-50 rounded-[2rem] border border-slate-100/60 shadow-inner"
+                          >
+                            <div className="flex gap-5">
+                              <div className="w-10 h-10 rounded-xl bg-white text-indigo-600 flex items-center justify-center text-sm font-black shadow-sm shrink-0">
+                                {index + 1}
+                              </div>
+                              <div>
+                                <h4 className="font-black text-slate-900 mb-1 text-lg">
+                                  {item.title}
+                                </h4>
+                                <p className="text-sm text-slate-400 font-medium leading-relaxed italic opacity-80">
+                                  {item.description}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="bg-white p-6 rounded-2xl border border-slate-100 text-base text-slate-700 leading-relaxed font-medium shadow-sm">
+                              {responses[item._id] || "No data recorded for this step."}
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              {/* Materials Section */}
+              {task.materials && task.materials.length > 0 && (
+                <div className="space-y-6 pt-6 border-t border-slate-100">
+                  <h3 className="text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em] flex items-center gap-3">
+                    <div className="p-2 bg-rose-50 rounded-lg text-rose-600">
+                      <PlayCircle size={16} />
+                    </div>
+                    Intelligence Assets
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {task.materials.map((mat: any, index: number) => (
+                      <a
+                        key={index}
+                        href={mat.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-5 p-5 bg-white border border-slate-100 rounded-2xl hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-500/5 transition-all group"
+                      >
+                        <div
+                          className={cn(
+                            "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm",
+                            mat.type === "VIDEO"
+                              ? "bg-indigo-50 text-indigo-600"
+                              : mat.type === "PDF"
+                              ? "bg-rose-50 text-rose-600"
+                              : "bg-emerald-50 text-emerald-600"
+                          )}
+                        >
+                          {mat.type === "VIDEO" ? (
+                            <PlayCircle size={24} />
+                          ) : mat.type === "PDF" ? (
+                            <FileText size={24} />
+                          ) : (
+                            <ExternalLink size={24} />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-black text-slate-900 truncate group-hover:text-indigo-600 transition-colors tracking-tight">
+                            {mat.title}
+                          </p>
+                          <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mt-1">
+                            {mat.type} Asset
+                          </p>
+                        </div>
+                        <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {!isSuccess &&
@@ -370,43 +390,51 @@ const TaskDetailsPage = () => {
             task.status === "PENDING" ||
             task.status === "REDO" ||
             isEditing) ? (
-            <div className="bg-white rounded-3xl border border-neutral-100 p-8 shadow-sm">
-              <h2 className="text-lg font-bold mb-6">Submit Your Work</h2>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-6">
-                  <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2 mb-4">
-                    <ListChecks size={18} className="text-blue-600" />{" "}
-                    Requirements & Responses
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-sm">
+              <div className="flex items-center gap-3 mb-10">
+                <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
+                <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
+                  Mission Submission
+                </h2>
+              </div>
+              
+              <form onSubmit={handleSubmit} className="space-y-10">
+                <div className="space-y-8">
+                  <h3 className="text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em] flex items-center gap-3">
+                    <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
+                      <ListChecks size={16} />
+                    </div>
+                    Execution Steps
                   </h3>
 
                   {(task.whatToDo || task.steps)?.map(
                     (item: any, idx: number) => (
                       <div
                         key={item._id || idx}
-                        className="space-y-4 p-6 bg-neutral-50 rounded-3xl border border-neutral-100"
+                        className="space-y-6 p-8 bg-slate-50 rounded-[2rem] border border-slate-100 shadow-inner group/step focus-within:bg-white focus-within:shadow-xl focus-within:shadow-indigo-500/5 transition-all duration-300"
                       >
-                        <div className="flex gap-4">
-                          <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-sm shadow-blue-200">
+                        <div className="flex gap-5">
+                          <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-sm font-black shrink-0 shadow-lg shadow-indigo-600/20 group-focus-within/step:scale-110 transition-transform">
                             {idx + 1}
                           </div>
                           <div>
-                            <h4 className="font-bold text-neutral-900 mb-1">
+                            <h4 className="font-black text-slate-900 mb-1 text-lg">
                               {item.title}
                             </h4>
-                            <p className="text-xs text-neutral-500 leading-relaxed italic">
+                            <p className="text-sm text-slate-400 font-medium leading-relaxed italic opacity-80">
                               {item.description}
                             </p>
                           </div>
                         </div>
 
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider ml-1">
-                            Your Submission for this item
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                            Observation / Outcome
                           </label>
                           <textarea
                             required
-                            className="w-full min-h-[100px] bg-white border border-neutral-100 rounded-2xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all resize-none shadow-sm"
-                            placeholder={`Enter your response for: ${item.title}...`}
+                            className="w-full min-h-[140px] bg-white border border-slate-100 rounded-2xl p-5 text-base font-medium focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600/20 transition-all resize-none shadow-sm placeholder:text-slate-300"
+                            placeholder={`Document your results for: ${item.title}...`}
                             value={responses[item._id] || ""}
                             onChange={(e) =>
                               setResponses({
@@ -423,13 +451,13 @@ const TaskDetailsPage = () => {
 
                 {(task.requirements?.includes("TEXT") ||
                   !task.requirements) && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-neutral-900">
-                      General Remarks
+                  <div className="space-y-4">
+                    <label className="text-xs font-black font-heading text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                      Final Debriefing
                     </label>
                     <textarea
-                      className="w-full min-h-[120px] bg-neutral-50 border border-neutral-100 rounded-2xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all resize-none shadow-sm"
-                      placeholder="Any additional information..."
+                      className="w-full min-h-[160px] bg-slate-50 border border-slate-100 rounded-3xl p-6 text-base font-medium focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600/20 transition-all resize-none shadow-inner"
+                      placeholder="Any final notes or observations for the command team..."
                       value={submissionMsg}
                       onChange={(e) => setSubmissionMsg(e.target.value)}
                     />
@@ -438,59 +466,61 @@ const TaskDetailsPage = () => {
 
                 {(task.requirements?.includes("LINK") ||
                   task.requirements?.includes("FILE")) && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-100">
                     {task.requirements?.includes("LINK") && (
-                      <div className="space-y-3">
-                        <label className="text-sm font-bold text-neutral-900">
-                          Submission Links (Google Drive, Social Media, etc.)
+                      <div className="space-y-4">
+                        <label className="text-xs font-black font-heading text-slate-900 uppercase tracking-widest">
+                          External Evidence Links
                         </label>
-                        {links.map((link, idx) => (
-                          <div key={idx} className="flex gap-2">
-                            <input
-                              type="url"
-                              className="flex-1 bg-neutral-50 border border-neutral-100 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-                              placeholder="https://..."
-                              value={link}
-                              onChange={(e) => {
-                                const newLinks = [...links];
-                                newLinks[idx] = e.target.value;
-                                setLinks(newLinks);
-                              }}
-                            />
-                            {links.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const newLinks = links.filter(
-                                    (_, i) => i !== idx
-                                  );
-                                  setLinks(
-                                    newLinks.length > 0 ? newLinks : [""]
-                                  );
+                        <div className="space-y-3">
+                          {links.map((link, idx) => (
+                            <div key={idx} className="flex gap-3 animate-in fade-in slide-in-from-left-2 duration-300">
+                              <input
+                                type="url"
+                                className="flex-1 bg-slate-50 border border-slate-100 rounded-xl p-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-600/20 transition-all"
+                                placeholder="https://external-resource.com"
+                                value={link}
+                                onChange={(e) => {
+                                  const newLinks = [...links];
+                                  newLinks[idx] = e.target.value;
+                                  setLinks(newLinks);
                                 }}
-                                className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors text-sm font-medium"
-                              >
-                                Remove
-                              </button>
-                            )}
-                          </div>
-                        ))}
+                              />
+                              {links.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newLinks = links.filter(
+                                      (_, i) => i !== idx
+                                    );
+                                    setLinks(
+                                      newLinks.length > 0 ? newLinks : [""]
+                                    );
+                                  }}
+                                  className="p-3 text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                                >
+                                  <AlertCircle size={20} />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                         <button
                           type="button"
                           onClick={() => setLinks([...links, ""])}
-                          className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 mt-2"
+                          className="text-xs text-indigo-600 hover:text-indigo-700 font-black uppercase tracking-widest flex items-center gap-2 mt-4 px-4 py-2 hover:bg-indigo-50 rounded-xl transition-all"
                         >
-                          + Add More Links
+                          + Append New Link
                         </button>
                       </div>
                     )}
 
                     {task.requirements?.includes("FILE") && (
-                      <div className="space-y-3">
-                        <label className="text-sm font-bold text-neutral-900">
-                          Attachments
+                      <div className="space-y-4">
+                        <label className="text-xs font-black font-heading text-slate-900 uppercase tracking-widest">
+                          Visual Evidence
                         </label>
-                        <div className="relative">
+                        <div className="relative group">
                           <input
                             type="file"
                             className="hidden"
@@ -500,20 +530,20 @@ const TaskDetailsPage = () => {
                           />
                           <label
                             htmlFor="file-upload"
-                            className="flex items-center gap-3 p-4 bg-neutral-50 border border-neutral-100 rounded-2xl cursor-pointer hover:bg-neutral-100 transition-colors"
+                            className="flex items-center gap-5 p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] cursor-pointer hover:bg-indigo-50/30 hover:border-indigo-300 transition-all group-hover:shadow-lg group-hover:shadow-indigo-500/5"
                           >
-                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
                               <Paperclip
-                                size={18}
-                                className="text-neutral-400"
+                                size={24}
+                                className="text-slate-400 group-hover:text-indigo-600"
                               />
                             </div>
                             <div>
-                              <p className="text-sm font-bold text-neutral-900">
-                                {file ? file.name : "Upload Proof"}
+                              <p className="text-base font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
+                                {file ? file.name : "Upload Documentation"}
                               </p>
-                              <p className="text-[10px] text-neutral-400">
-                                PDF, Images, Video (Max 50MB)
+                              <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">
+                                PDF, Media, Logs (Limit: 50MB)
                               </p>
                             </div>
                           </label>
@@ -524,117 +554,132 @@ const TaskDetailsPage = () => {
                 )}
 
                 {error && (
-                  <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl flex items-start gap-3">
-                    <AlertCircle size={18} className="shrink-0" />
-                    <p className="text-xs">{error}</p>
-                  </div>
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-rose-50 border border-rose-100 text-rose-600 p-5 rounded-2xl flex items-center gap-4"
+                  >
+                    <AlertCircle size={20} className="shrink-0" />
+                    <p className="text-sm font-bold tracking-tight">{error}</p>
+                  </motion.div>
                 )}
 
                 <Button
-                  className="w-full h-12"
+                  className="w-full h-16 text-lg rounded-2xl group shadow-xl shadow-indigo-600/20"
                   disabled={submitting}
                   isLoading={submitting}
-                  rightIcon={<Send size={18} />}
+                  rightIcon={<Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
                 >
                   {currentIndex < sequence.length - 1
-                    ? "Submit & Next Task"
-                    : "Submit & Complete"}
+                    ? "Verify & Next Protocol"
+                    : "Finalize Submission"}
                 </Button>
               </form>
             </div>
           ) : task.status === "COMPLETED" && !isEditing ? (
-            <div className="bg-green-50 rounded-3xl border border-green-100 p-8 text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 size={32} className="text-green-600" />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-emerald-50 rounded-[3rem] border border-emerald-100 p-12 text-center shadow-sm"
+            >
+              <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-lg shadow-emerald-500/10">
+                <CheckCircle2 size={48} className="text-emerald-500" />
               </div>
-              <h2 className="text-xl font-bold text-green-900">
-                Already Submitted!
+              <h2 className="text-3xl font-black font-heading text-slate-900 tracking-tight">
+                Protocol Secured
               </h2>
-              <p className="text-green-700 mt-2 text-sm">
-                You have already submitted your work.
+              <p className="text-slate-600 mt-4 text-lg font-medium max-w-md mx-auto">
+                This mission objective has been verified and registered in the system.
               </p>
               {new Date() < new Date(task.dueDate) && (
-                <Button
+                <button
                   onClick={() => setIsEditing(true)}
-                  variant="outline"
-                  className="mt-6 border-green-200 text-green-700 hover:bg-green-100"
+                  className="mt-10 px-10 py-4 bg-white border border-emerald-100 text-emerald-700 font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-emerald-100 hover:shadow-lg hover:shadow-emerald-500/5 transition-all active:scale-95"
                 >
-                  Edit Submission
-                </Button>
+                  Modify Records
+                </button>
               )}
-            </div>
+            </motion.div>
           ) : (
-            <div className="bg-green-50 rounded-3xl border border-green-100 p-12 text-center">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 size={40} className="text-green-600" />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-emerald-50 rounded-[3rem] border border-emerald-100 p-16 text-center shadow-sm"
+            >
+              <div className="w-28 h-28 bg-white rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-xl shadow-emerald-500/10">
+                <CheckCircle2 size={56} className="text-emerald-500" />
               </div>
-              <h2 className="text-xl font-bold text-green-900">
+              <h2 className="text-3xl font-black font-heading text-slate-900 tracking-tight">
                 {currentIndex < sequence.length - 1
-                  ? "Ready for Next Task!"
-                  : "All Done!"}
+                  ? "Objective Neutralized!"
+                  : "Campaign Successful!"}
               </h2>
-              <p className="text-green-700 mt-2 text-sm">
+              <p className="text-slate-600 mt-4 text-lg font-medium max-w-md mx-auto leading-relaxed">
                 {currentIndex < sequence.length - 1
-                  ? "Your submission was saved. Moving to the next task..."
-                  : "You have completed all tasks for this week!"}
+                  ? "Submission successful. Stand by for the next protocol briefing..."
+                  : "Operational complete. All objectives for this cycle have been met!"}
               </p>
               {currentIndex < sequence.length - 1 ? (
                 <Button
                   onClick={() =>
                     navigate(`/tasks/${sequence[currentIndex + 1]._id}`)
                   }
-                  className="mt-6 bg-green-600 hover:bg-green-700 border-none"
+                  className="mt-10 h-16 px-12 bg-emerald-600 hover:bg-emerald-700 border-none rounded-2xl shadow-xl shadow-emerald-600/20"
                 >
-                  Go to Next Task
+                  Advance to Next Protocol
                 </Button>
               ) : (
                 <Button
                   onClick={() => navigate("/dashboard")}
-                  variant="outline"
-                  className="mt-6 border-green-200 text-green-700 hover:bg-green-100"
+                  className="mt-10 h-16 px-12 bg-slate-900 hover:bg-indigo-600 border-none rounded-2xl shadow-xl shadow-slate-900/10"
                 >
-                  Back to Dashboard
+                  Return to Command Hub
                 </Button>
               )}
-            </div>
+            </motion.div>
           )}
         </div>
 
-        <div className="space-y-6">
-          <div className="bg-white rounded-3xl border border-neutral-100 p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-neutral-900 mb-4">
-              Task Info
+        <div className="space-y-8">
+          <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm group">
+            <h3 className="text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em] mb-8">
+              Protocol Intel
             </h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-neutral-500">Status</span>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold text-slate-400">Status</span>
                 <span
                   className={cn(
-                    "font-bold uppercase",
+                    "text-xs font-black uppercase tracking-widest px-3 py-1 rounded-lg border",
                     task.status === "COMPLETED"
-                      ? "text-green-600"
+                      ? "bg-emerald-50 border-emerald-100 text-emerald-600"
                       : task.status === "REDO"
-                      ? "text-amber-600"
-                      : "text-amber-600"
+                      ? "bg-rose-50 border-rose-100 text-rose-600"
+                      : "bg-indigo-50 border-indigo-100 text-indigo-600"
                   )}
                 >
                   {task.status === "REDO"
-                    ? "Redo Required"
-                    : task.status || "Pending"}
+                    ? "Redo Action"
+                    : task.status || "Active"}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-neutral-500">Points</span>
-                <span className="font-bold text-blue-600">
-                  {task.rewardPoints || 0} XP
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold text-slate-400">Merit Points</span>
+                <span className="text-lg font-black text-indigo-600 font-heading">
+                  +{task.rewardPoints || 0} XP
                 </span>
               </div>
               {task.createdBy && (
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-neutral-500">Created By</span>
-                  <span className="font-bold text-neutral-900">
-                    {task.createdBy.firstName} {task.createdBy.lastName}
-                  </span>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-slate-400">Officer</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-slate-100 rounded-md flex items-center justify-center text-[10px] font-black text-slate-400">
+                      {task.createdBy.firstName[0]}
+                    </div>
+                    <span className="text-sm font-black text-slate-900">
+                      {task.createdBy.firstName} {task.createdBy.lastName}
+                    </span>
+                  </div>
                 </div>
               )}
 
@@ -642,20 +687,23 @@ const TaskDetailsPage = () => {
               {task.submission?.adminFeedback && (
                 <div
                   className={cn(
-                    "mt-4 p-4 rounded-2xl border text-sm leading-relaxed",
+                    "mt-8 p-6 rounded-2xl border text-sm leading-relaxed relative overflow-hidden group/feedback",
                     task.status === "REDO"
-                      ? "bg-amber-50 border-amber-200 text-amber-900 border-l-4 border-l-amber-500"
+                      ? "bg-rose-50 border-rose-200 text-rose-900 border-l-4 border-l-rose-500"
                       : task.status === "COMPLETED"
-                      ? "bg-green-50 border-green-100 text-green-800"
-                      : "bg-red-50 border-red-100 text-red-800"
+                      ? "bg-emerald-50 border-emerald-100 text-emerald-800 border-l-4 border-l-emerald-500"
+                      : "bg-indigo-50 border-indigo-100 text-indigo-800 border-l-4 border-l-indigo-500"
                   )}
                 >
-                  <p className="font-bold text-xs uppercase tracking-wider mb-1 opacity-70">
+                  <div className="absolute top-0 right-0 p-3 opacity-10 group-hover/feedback:opacity-30 transition-opacity">
+                    <AlertCircle size={48} />
+                  </div>
+                  <p className="font-black text-[10px] uppercase tracking-widest mb-3 opacity-60">
                     {task.status === "REDO"
-                      ? "Action Required: Admin Feedback"
-                      : "Admin Feedback"}
+                      ? "Direct Order: Feedback"
+                      : "Intelligence Feedback"}
                   </p>
-                  <p className="font-medium italic">
+                  <p className="font-bold italic text-base leading-snug">
                     "{task.submission.adminFeedback}"
                   </p>
                 </div>
@@ -663,19 +711,17 @@ const TaskDetailsPage = () => {
             </div>
           </div>
 
-          <div className="bg-blue-600 rounded-3xl p-6 text-white shadow-lg shadow-blue-600/20">
-            <h3 className="font-bold mb-2">Need Help?</h3>
-            <p className="text-xs text-blue-100 leading-relaxed mb-4">
-              If you have questions about this task, you can send a message to
-              the admin team.
+          <div className="bg-indigo-600 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-indigo-600/30 relative overflow-hidden group">
+            <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700" />
+            <h3 className="text-xl font-black font-heading mb-3 tracking-tight">Need Assistance?</h3>
+            <p className="text-sm text-indigo-100 leading-relaxed mb-8 font-medium">
+              If protocol requirements are unclear, escalate your query to Command Headquarters for immediate clarification.
             </p>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="w-full bg-white/10 hover:bg-white/20 text-white border-none"
+            <button
+              className="w-full py-4 bg-white/10 hover:bg-white text-white hover:text-indigo-600 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all border border-white/20 hover:border-white shadow-lg active:scale-95"
             >
-              Message Admin
-            </Button>
+              Signal Headquarters
+            </button>
           </div>
         </div>
       </div>

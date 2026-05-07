@@ -57,81 +57,106 @@ const ResetPasswordPage = () => {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-[#F8FAFC]">
+      <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-slate-900">
+        {/* Animated Mesh Gradient Background */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-600/20 rounded-full blur-[120px] animate-pulse" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse" />
+        </div>
+
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-4xl shadow-xl p-8 border border-neutral-100 text-center max-w-md w-full"
+          className="bg-white/95 backdrop-blur-2xl rounded-[3rem] shadow-2xl p-12 border border-white/20 text-center max-w-md w-full relative z-10"
         >
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="text-green-600 w-8 h-8" />
+          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-emerald-200">
+            <CheckCircle2 className="text-emerald-600 w-10 h-10" />
           </div>
-          <h1 className="text-2xl font-bold text-neutral-900">Security Updated</h1>
-          <p className="text-neutral-500 mt-2">Your password has been successfully set. Redirecting you to your dashboard...</p>
+          <h1 className="text-3xl font-black font-heading text-slate-900 tracking-tight">Protocol Synchronized</h1>
+          <p className="text-slate-500 mt-3 font-medium">Your credentials have been updated. Redirecting to operational dashboard...</p>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-[#F8FAFC]">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-slate-900">
+      {/* Animated Mesh Gradient Background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/30 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-fuchsia-600/20 rounded-full blur-[120px] animate-pulse delay-700" />
+        <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-blue-500/20 rounded-full blur-[100px] animate-bounce duration-[10s]" />
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-4xl shadow-xl p-8 border border-neutral-100"
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="bg-white/95 backdrop-blur-2xl rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] p-12 border border-white/20 relative group overflow-hidden"
         >
-          <div className="mb-8 text-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-600/20">
-              <Lock className="text-white w-8 h-8" />
-            </div>
-            <h1 className="text-2xl font-bold text-neutral-900">Secure Your Account</h1>
-            <p className="text-neutral-500 mt-1">Please complete your profile and set a password.</p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {!user?.firstName && (
-              <Input
-                label="First Name"
-                type="text"
-                placeholder="Your First Name"
-                required
-                value={formData.firstName}
-                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-              />
-            )}
-            <Input
-              label="New Password"
-              type="password"
-              placeholder="••••••••"
-              required
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            />
-            <Input
-              label="Confirm New Password"
-              type="password"
-              placeholder="••••••••"
-              required
-              value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-            />
-
-            {error && (
-              <div className="bg-red-50 border border-red-100 text-red-600 text-sm p-3 rounded-xl">
-                {error}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          
+          <div className="relative z-10">
+            <div className="mb-10 text-center">
+              <div className="w-20 h-20 bg-indigo-600 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-indigo-600/30 group-hover:scale-110 transition-transform duration-700">
+                <Lock className="text-white w-10 h-10" />
               </div>
-            )}
+              <h1 className="text-3xl font-black font-heading text-slate-900 tracking-tight">
+                Secure Access
+              </h1>
+              <p className="text-slate-500 mt-2 font-medium">Complete your security protocol.</p>
+            </div>
 
-            <Button
-              type="submit"
-              className="w-full mt-2"
-              isLoading={isLoading}
-              rightIcon={<ArrowRight size={18} />}
-            >
-              Set Password & Continue
-            </Button>
-          </form>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {!user?.firstName && (
+                <Input
+                  label="Mission Alias (First Name)"
+                  type="text"
+                  placeholder="Enter your first name"
+                  required
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                />
+              )}
+              <Input
+                label="Tactical Password"
+                type="password"
+                placeholder="••••••••"
+                required
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              />
+              <Input
+                label="Confirm Credentials"
+                type="password"
+                placeholder="••••••••"
+                required
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              />
+
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="bg-rose-50 border border-rose-100 text-rose-600 text-xs font-black uppercase tracking-widest p-4 rounded-2xl flex items-center gap-3"
+                >
+                  <div className="w-1.5 h-1.5 bg-rose-600 rounded-full animate-pulse" />
+                  {error}
+                </motion.div>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full h-16 text-lg rounded-2xl shadow-xl shadow-indigo-600/20 mt-4 group"
+                isLoading={isLoading}
+                rightIcon={<ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />}
+              >
+                Authenticate & Sync
+              </Button>
+            </form>
+          </div>
         </motion.div>
       </div>
     </div>
