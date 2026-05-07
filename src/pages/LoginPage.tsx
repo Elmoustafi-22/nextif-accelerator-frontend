@@ -108,7 +108,7 @@ const LoginPage = () => {
                 ))}
               </div>
               <p className="text-sm font-medium text-slate-400">
-                Joined by <span className="text-slate-900 font-bold">500+</span> fellows globally
+                Joined by <span className="text-slate-900 font-bold">50+</span> fellows globally
               </p>
             </div>
           </motion.div>
