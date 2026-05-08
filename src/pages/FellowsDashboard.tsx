@@ -12,6 +12,7 @@ import {
 import { useAuthStore } from "../store/useAuthStore";
 import axiosInstance from "../api/axiosInstance";
 import { cn } from "../utils/cn";
+import { generateGoogleCalendarLink } from "../utils/calendar";
 
 const StatCard = ({ title, value, icon: Icon, color, trend }: any) => (
   <motion.div
@@ -178,19 +179,39 @@ const FellowsDashboard = () => {
                     {new Date(event.date).toLocaleDateString()} • {new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                   {event.location?.startsWith("http") ? (
-                    isJoinable(event.date) ? (
-                      <a href={event.location} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
-                        <Video size={14} /> Join Now
+                    <div className="flex flex-col gap-3">
+                      {isJoinable(event.date) ? (
+                        <a href={event.location} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
+                          <Video size={14} /> Join Now
+                        </a>
+                      ) : (
+                        <div className="flex items-center justify-center gap-3 w-full py-4 bg-slate-800 text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] cursor-not-allowed">
+                          Awaiting Sync
+                        </div>
+                      )}
+                      <a 
+                        href={generateGoogleCalendarLink(event.title, event.date, event.explanation || "NextIF Mentorship Session", event.location)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full py-3 border border-slate-700 hover:bg-slate-800 text-slate-400 hover:text-white rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all"
+                      >
+                         Sync to Calendar
                       </a>
-                    ) : (
-                      <div className="flex items-center justify-center gap-3 w-full py-4 bg-slate-800 text-slate-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] cursor-not-allowed">
-                        Awaiting Sync
-                      </div>
-                    )
+                    </div>
                   ) : (
-                    <Link to="/events" className="flex items-center justify-center gap-3 w-full py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all">
-                      View Details
-                    </Link>
+                    <div className="flex flex-col gap-3">
+                      <Link to="/events" className="flex items-center justify-center gap-3 w-full py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all">
+                        View Details
+                      </Link>
+                      <a 
+                        href={generateGoogleCalendarLink(event.title, event.date, event.explanation || "NextIF Mentorship Session", event.location)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full py-3 border border-slate-700 hover:bg-slate-800 text-slate-400 hover:text-white rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all"
+                      >
+                         Sync to Calendar
+                      </a>
+                    </div>
                   )}
                 </div>
               ))}
