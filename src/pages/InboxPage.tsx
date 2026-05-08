@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { cn } from "../utils/cn";
 import { motion } from "framer-motion";
 import { useNotificationStore } from "../store/useNotificationStore";
+import { VideoCameraIcon } from "@heroicons/react/24/outline";
 
 const InboxPage = () => {
   const { notifications, isLoading, fetchNotifications, markAsRead } =
@@ -31,10 +32,10 @@ const InboxPage = () => {
     <div className="max-w-6xl mx-auto space-y-10 animate-in fade-in duration-700">
       <div className="space-y-2">
         <h1 className="text-4xl font-black font-heading text-slate-900 tracking-tight">
-          Intelligence Center
+          Alerts & Communications
         </h1>
         <p className="text-slate-500 font-medium text-lg">
-          Monitor your tactical communications and system-wide alerts.
+          Stay updated with your latest messages and system alerts.
         </p>
       </div>
 
@@ -53,7 +54,7 @@ const InboxPage = () => {
                 : "text-slate-400 hover:text-slate-600"
             )}
           >
-            Tactical Comms
+            Direct Messages
             {unreadMessagesCount > 0 && (
               <span className="bg-indigo-600 text-white text-[10px] px-2.5 py-1 rounded-lg font-black shadow-lg shadow-indigo-600/20">
                 {unreadMessagesCount}
@@ -75,7 +76,7 @@ const InboxPage = () => {
                 : "text-slate-400 hover:text-slate-600"
             )}
           >
-            System Protocols
+            System Alerts
             {unreadNotificationsCount > 0 && (
               <span className="bg-indigo-600 text-white text-[10px] px-2.5 py-1 rounded-lg font-black shadow-lg shadow-indigo-600/20">
                 {unreadNotificationsCount}
@@ -96,7 +97,7 @@ const InboxPage = () => {
             <div className="p-32 text-center">
               <div className="w-14 h-14 border-4 border-indigo-600/10 border-t-indigo-600 rounded-full animate-spin mx-auto shadow-sm"></div>
               <p className="mt-6 text-slate-400 font-black font-heading uppercase tracking-widest text-xs">
-                Synchronizing Intel...
+                Syncing Notifications...
               </p>
             </div>
           ) : filteredMessages.length === 0 ? (
@@ -109,10 +110,10 @@ const InboxPage = () => {
                 )}
               </div>
               <h3 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
-                Channel Secured
+                All Caught Up
               </h3>
               <p className="text-slate-400 mt-3 max-w-sm mx-auto font-medium leading-relaxed">
-                No active {tab} recorded in current cycle. Intelligence database is clear.
+                No active {tab} recorded in current cycle. Your feed is clear.
               </p>
             </div>
           ) : (
@@ -175,6 +176,18 @@ const InboxPage = () => {
                     >
                       {item.body}
                     </p>
+                    {item.title.toLowerCase().includes("recording available") && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate("/events");
+                        }}
+                        className="mt-6 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all active:scale-95 flex items-center gap-2 w-fit"
+                      >
+                        <VideoCameraIcon className="w-4 h-4" />
+                        Watch Session
+                      </button>
+                    )}
                   </div>
                   <div className="text-slate-200 group-hover:text-indigo-600 transition-all group-hover:translate-x-2 self-center">
                     <ChevronRight size={32} />

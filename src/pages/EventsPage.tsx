@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "../api/axiosInstance";
+import { motion } from "framer-motion";
 import { format } from "date-fns";
 import {
   CalendarIcon,
@@ -7,6 +8,9 @@ import {
   VideoCameraIcon,
   CheckCircleIcon,
   XCircleIcon,
+  XMarkIcon,
+  ClockIcon,
+  UserIcon,
 } from "@heroicons/react/24/outline";
 import { cn } from "../utils/cn";
 
@@ -34,6 +38,16 @@ const EventsPage = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [myAttendance, setMyAttendance] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+
+  const isJoinable = (eventDate: string) => {
+    const now = new Date();
+    const eventTime = new Date(eventDate);
+    const thirtyMinutesBefore = new Date(eventTime.getTime() - 30 * 60000);
+    const twoHoursAfter = new Date(eventTime.getTime() + 120 * 60000);
+
+    return now >= thirtyMinutesBefore && now <= twoHoursAfter;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -98,7 +112,8 @@ const EventsPage = () => {
                 {events.map((event) => (
                   <div
                     key={event._id}
-                    className="group bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 transition-all flex flex-col overflow-hidden relative"
+                    onClick={() => setSelectedEvent(event)}
+                    className="group bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 transition-all flex flex-col overflow-hidden relative cursor-pointer"
                   >
                     <div className="h-2 bg-indigo-600 w-full group-hover:h-3 transition-all duration-500"></div>
                     <div className="p-8 flex flex-col flex-1 relative z-10">
@@ -144,21 +159,31 @@ const EventsPage = () => {
                       )}
 
                       {event.location &&
-                        event.location.startsWith("http") && (
+                        event.location.startsWith("http") &&
+                        isJoinable(event.date) && (
                           <a
                             href={event.location}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-auto block w-full py-4 text-center bg-slate-900 hover:bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-slate-900/10 hover:shadow-indigo-600/20 transition-all active:scale-95 mb-3"
+                            onClick={(e) => e.stopPropagation()}
+                            className="mt-auto block w-full py-4 text-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-indigo-600/20 transition-all active:scale-95 mb-3"
                           >
-                            Initiate Link
+                            Join Briefing Now
                           </a>
+                        )}
+                      {event.location &&
+                        event.location.startsWith("http") &&
+                        !isJoinable(event.date) && (
+                          <div className="mt-auto block w-full py-4 text-center bg-slate-100 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] mb-3 cursor-not-allowed">
+                            Link Inactive
+                          </div>
                         )}
                       {event.recordingLink && (
                         <a
                           href={event.recordingLink}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
                           className="block w-full py-4 text-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-600/10 hover:shadow-emerald-700/20 transition-all active:scale-95"
                         >
                           Watch Recording
@@ -261,6 +286,129 @@ const EventsPage = () => {
               </div>
             </section>
           )}
+        </div>
+      )}
+
+      {/* Event Details Modal */}
+      {selectedEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl overflow-hidden relative"
+          >
+            <button
+              onClick={() => setSelectedEvent(null)}
+              className="absolute top-8 right-8 p-2 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-2xl transition-colors z-10"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+
+            <div className="h-3 bg-indigo-600 w-full" />
+
+            <div className="p-10 sm:p-16 space-y-10">
+              <div className="space-y-4">
+                <span className="text-[10px] font-black tracking-[0.2em] text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl uppercase border border-indigo-100">
+                  {selectedEvent.type} Protocol
+                </span>
+                <h2 className="text-4xl font-black font-heading text-slate-900 tracking-tight leading-tight">
+                  {selectedEvent.title}
+                </h2>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
+                      <CalendarIcon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date & Time</p>
+                      <p className="font-bold text-slate-700">
+                        {format(new Date(selectedEvent.date), "EEEE, MMM d, yyyy")}
+                      </p>
+                      <p className="text-sm text-slate-500">
+                        {format(new Date(selectedEvent.date), "p")}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
+                      <MapPinIcon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Location</p>
+                      <p className="font-bold text-slate-700 truncate max-w-[200px]">
+                        {selectedEvent.location || "Internal Operations"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
+                      <UserIcon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Primary Speaker</p>
+                      <p className="font-bold text-slate-700">
+                        {selectedEvent.speaker || "Operational Command"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-indigo-50 rounded-2xl text-indigo-600">
+                      <ClockIcon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</p>
+                      <span className="inline-flex items-center px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest border border-emerald-100">
+                        {selectedEvent.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Briefing Description</p>
+                <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 text-slate-600 leading-relaxed font-medium">
+                  {selectedEvent.description || "No tactical data available for this operation."}
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                {selectedEvent.location && selectedEvent.location.startsWith("http") && (
+                  <a
+                    href={selectedEvent.location}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      "flex-1 py-5 text-center rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95",
+                      isJoinable(selectedEvent.date)
+                        ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20"
+                        : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    )}
+                  >
+                    {isJoinable(selectedEvent.date) ? "Join Live Briefing" : "Briefing Inactive"}
+                  </a>
+                )}
+                {selectedEvent.recordingLink && (
+                  <a
+                    href={selectedEvent.recordingLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-5 text-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
+                  >
+                    Watch Recording
+                  </a>
+                )}
+              </div>
+            </div>
+          </motion.div>
         </div>
       )}
     </div>
