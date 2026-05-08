@@ -149,7 +149,7 @@ const ReportsPage = () => {
             Personnel Analytics
           </h1>
           <p className="text-slate-500 font-medium text-lg">
-            Strategic performance and tactical achievement metrics.
+            Comprehensive program performance and task achievement metrics.
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -305,7 +305,7 @@ const ReportsPage = () => {
                 <span className="text-sm font-black text-indigo-100 uppercase tracking-widest opacity-80">Sync</span>
               </div>
               <p className="text-[10px] text-indigo-100 font-black uppercase tracking-[0.2em] opacity-60">
-                Weekly Tactical Progress
+                Weekly Task Progress
               </p>
             </div>
           </div>
@@ -351,9 +351,9 @@ const ReportsPage = () => {
         <div className="p-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="space-y-1">
             <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
-              Intelligence Log
+              Activity History
             </h2>
-            <p className="text-slate-400 text-sm font-medium font-heading tracking-tight">Real-time tactical deployment history</p>
+            <p className="text-slate-400 text-sm font-medium font-heading tracking-tight">Real-time program participation history</p>
           </div>
           <div className="p-3 bg-white rounded-2xl text-slate-400 shadow-sm">
             <Calendar size={24} />

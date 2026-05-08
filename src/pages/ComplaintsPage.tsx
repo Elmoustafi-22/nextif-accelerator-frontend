@@ -83,7 +83,7 @@ const ComplaintsPage = () => {
             Support Protocol
           </h1>
           <p className="text-slate-500 font-medium text-lg">
-            Submit mission reports or track tactical support tickets.
+            Submit support requests or track your existing tickets.
           </p>
         </div>
         <Button
@@ -131,7 +131,7 @@ const ComplaintsPage = () => {
                       setFormData({ ...formData, category: e.target.value })
                     }
                   >
-                    <option value="TASK_ISSUE">Tactical Objective Issue</option>
+                    <option value="TASK_ISSUE">Task Related Issue</option>
                     <option value="PAYMENT">Merit Point Discrepancy</option>
                     <option value="ACCOUNT">Credential Protocol</option>
                     <option value="TECHNICAL">System Anomaly</option>
@@ -148,7 +148,7 @@ const ComplaintsPage = () => {
               </label>
               <textarea
                 className="w-full min-h-[200px] bg-slate-50 border border-slate-100 rounded-3xl p-6 text-base font-medium text-slate-900 focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600/20 transition-all resize-none shadow-inner placeholder:text-slate-300"
-                placeholder="Provide a detailed description of the tactical situation..."
+                placeholder="Provide a detailed description of the issue or question..."
                 required
                 value={formData.description}
                 onChange={(e) =>
@@ -182,7 +182,7 @@ const ComplaintsPage = () => {
       <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden relative group">
         <div className="p-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="space-y-1">
-            <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">Tactical Log</h2>
+            <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">Support History</h2>
             <p className="text-slate-400 text-sm font-medium font-heading tracking-tight">Active and historical support tickets</p>
           </div>
           <div className="p-3 bg-white rounded-2xl text-slate-400 shadow-sm">
@@ -194,7 +194,7 @@ const ComplaintsPage = () => {
           {loading ? (
             <div className="p-20 text-center animate-pulse">
               <div className="w-16 h-16 bg-slate-50 rounded-2xl mx-auto mb-4" />
-              <p className="text-slate-400 font-black font-heading text-xs uppercase tracking-widest">Scanning Intelligence history...</p>
+              <p className="text-slate-400 font-black font-heading text-xs uppercase tracking-widest">Checking history...</p>
             </div>
           ) : complaints.length === 0 ? (
             <div className="p-24 text-center">
@@ -202,7 +202,7 @@ const ComplaintsPage = () => {
                 <CheckCircle2 size={40} className="text-slate-200" />
               </div>
               <p className="text-slate-400 font-black font-heading text-xs uppercase tracking-[0.2em]">
-                Tactical history clean. No incidents recorded.
+                Support history clean. No issues recorded.
               </p>
             </div>
           ) : (

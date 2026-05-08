@@ -72,8 +72,8 @@ const ResetPasswordPage = () => {
           <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-emerald-200">
             <CheckCircle2 className="text-emerald-600 w-10 h-10" />
           </div>
-          <h1 className="text-3xl font-black font-heading text-slate-900 tracking-tight">Protocol Synchronized</h1>
-          <p className="text-slate-500 mt-3 font-medium">Your credentials have been updated. Redirecting to operational dashboard...</p>
+          <h1 className="text-3xl font-black font-heading text-slate-900 tracking-tight">Account Secured</h1>
+          <p className="text-slate-500 mt-3 font-medium">Your password has been updated. Redirecting to your dashboard...</p>
         </motion.div>
       </div>
     );
@@ -103,15 +103,15 @@ const ResetPasswordPage = () => {
                 <Lock className="text-white w-10 h-10" />
               </div>
               <h1 className="text-3xl font-black font-heading text-slate-900 tracking-tight">
-                Secure Access
+                Secure Your Account
               </h1>
-              <p className="text-slate-500 mt-2 font-medium">Complete your security protocol.</p>
+              <p className="text-slate-500 mt-2 font-medium">Please set a secure password for your portal access.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {!user?.firstName && (
                 <Input
-                  label="Mission Alias (First Name)"
+                  label="First Name"
                   type="text"
                   placeholder="Enter your first name"
                   required
@@ -120,7 +120,7 @@ const ResetPasswordPage = () => {
                 />
               )}
               <Input
-                label="Tactical Password"
+                label="New Password"
                 type="password"
                 placeholder="••••••••"
                 required
@@ -128,7 +128,7 @@ const ResetPasswordPage = () => {
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               />
               <Input
-                label="Confirm Credentials"
+                label="Confirm Password"
                 type="password"
                 placeholder="••••••••"
                 required
@@ -153,7 +153,7 @@ const ResetPasswordPage = () => {
                 isLoading={isLoading}
                 rightIcon={<ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />}
               >
-                Authenticate & Sync
+                Update Password
               </Button>
             </form>
           </div>

@@ -79,10 +79,10 @@ const EventsPage = () => {
     <div className="max-w-6xl mx-auto space-y-12 animate-in fade-in duration-700">
       <div className="space-y-2">
         <h1 className="text-4xl font-black font-heading text-slate-900 tracking-tight">
-          Tactical Operations
+          Program Sessions
         </h1>
         <p className="text-slate-500 font-medium text-lg">
-          Synchronize with upcoming training sessions and track your operational presence.
+          Stay updated with upcoming sessions and track your program participation.
         </p>
       </div>
 
@@ -90,7 +90,7 @@ const EventsPage = () => {
         <div className="flex flex-col items-center justify-center py-24 space-y-4">
           <div className="w-12 h-12 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin" />
           <p className="text-slate-400 font-black font-heading text-xs uppercase tracking-widest">
-            Scanning upcoming protocols...
+            Loading sessions...
           </p>
         </div>
       ) : (
@@ -385,7 +385,7 @@ const EventsPage = () => {
               <div className="space-y-4">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Briefing Description</p>
                 <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 text-slate-600 leading-relaxed font-medium">
-                  {selectedEvent.description || "No tactical data available for this operation."}
+                  {selectedEvent.description || "No details available for this session."}
                 </div>
               </div>
 

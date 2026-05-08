@@ -98,7 +98,7 @@ const FellowsDashboard = () => {
             Welcome back, <span className="text-indigo-600">{user?.firstName || "Ambassador"}</span> 👋
           </motion.h1>
           <p className="text-slate-500 font-medium text-lg">
-            Monitor your tactical operations and mission progress.
+            Monitor your program progress and task achievements.
           </p>
         </div>
 
@@ -223,7 +223,7 @@ const FellowsDashboard = () => {
         <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col group">
           <div className="p-8 border-b border-slate-100 bg-slate-50/30">
             <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
-              Alerts & Activity
+              Updates & Activity
             </h2>
           </div>
           <div className="p-8 flex-1">
@@ -262,7 +262,7 @@ const FellowsDashboard = () => {
           </div>
           <div className="p-8 border-t border-slate-50">
             <Link to="/inbox" className="group/btn w-full py-4 rounded-2xl border border-slate-200 text-slate-400 font-black font-heading text-[10px] uppercase tracking-[0.2em] hover:text-indigo-600 hover:border-indigo-100 hover:bg-white hover:shadow-md transition-all flex items-center justify-center gap-3">
-              View All Alerts <ChevronRight size={14} />
+              View All Updates <ChevronRight size={14} />
             </Link>
           </div>
         </div>
@@ -276,11 +276,11 @@ const FellowsDashboard = () => {
         <StatCard title="Global Rank" value={`#${stats.globalRank}`} icon={CheckCircle2} color="bg-slate-900" />
       </div>
 
-      {/* Active Missions (Recent Tasks) */}
+      {/* Active Tasks */}
       <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col group">
         <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
           <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
-            Active Missions
+            Active Tasks
           </h2>
           <button onClick={() => window.location.reload()} className="text-indigo-600 text-xs font-black font-heading uppercase tracking-widest hover:bg-white px-5 py-2.5 rounded-xl transition-all border border-slate-200">
             Sync Data

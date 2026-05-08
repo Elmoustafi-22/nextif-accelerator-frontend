@@ -12,6 +12,7 @@ import {
   FileText,
   ExternalLink,
   ChevronRight,
+  MessageSquare,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import Button from "../components/Button";
@@ -215,12 +216,12 @@ const TaskDetailsPage = () => {
           <div className="p-2 bg-white rounded-xl border border-slate-100 group-hover:border-slate-200 shadow-sm transition-all">
             <ArrowLeft size={18} />
           </div>
-          Back to Missions
+          Back to Tasks
         </button>
 
         {sequence.length > 1 && (
           <div className="flex items-center gap-4 px-5 py-3 bg-white rounded-2xl border border-slate-100 shadow-sm text-xs font-black font-heading text-slate-900">
-            <span className="text-slate-300 uppercase tracking-widest">Protocol Progress</span>
+            <span className="text-slate-300 uppercase tracking-widest">Task Progress</span>
             <div className="flex items-center gap-3">
               <span className="bg-indigo-50 text-indigo-600 px-2 py-1 rounded-lg">
                 {currentIndex + 1} / {sequence.length}
@@ -267,7 +268,7 @@ const TaskDetailsPage = () => {
                     >
                       {task.status === "REDO"
                         ? "Action Required: Redo"
-                        : task.verificationType + " Protocol"}
+                        : task.verificationType + " Verification"}
                     </span>
                     {task.isBonus && (
                       <span className="px-3 py-1.5 rounded-xl bg-fuchsia-50 border border-fuchsia-100 text-fuchsia-700 shadow-sm">
@@ -282,7 +283,7 @@ const TaskDetailsPage = () => {
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
                   <h3 className="text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em]">
-                    Mission Briefing
+                    Task Briefing
                   </h3>
                 </div>
                 <div className="text-slate-600 leading-relaxed text-lg font-medium mb-10">
@@ -300,7 +301,7 @@ const TaskDetailsPage = () => {
                       <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
                         <ListChecks size={16} />
                       </div>
-                      Deployment Records
+                      Submission History
                     </h3>
                     <div className="space-y-6">
                       {(task.whatToDo || task.steps).map(
@@ -339,7 +340,7 @@ const TaskDetailsPage = () => {
                     <div className="p-2 bg-rose-50 rounded-lg text-rose-600">
                       <PlayCircle size={16} />
                     </div>
-                    Intelligence Assets
+                    Learning Resources
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {task.materials.map((mat: any, index: number) => (
@@ -394,7 +395,7 @@ const TaskDetailsPage = () => {
               <div className="flex items-center gap-3 mb-10">
                 <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
                 <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
-                  Mission Submission
+                  Task Submission
                 </h2>
               </div>
               
@@ -404,7 +405,7 @@ const TaskDetailsPage = () => {
                     <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
                       <ListChecks size={16} />
                     </div>
-                    Execution Steps
+                    Action Steps
                   </h3>
 
                   {(task.whatToDo || task.steps)?.map(
@@ -453,11 +454,11 @@ const TaskDetailsPage = () => {
                   !task.requirements) && (
                   <div className="space-y-4">
                     <label className="text-xs font-black font-heading text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                      Final Debriefing
+                      Submission Notes
                     </label>
                     <textarea
                       className="w-full min-h-[160px] bg-slate-50 border border-slate-100 rounded-3xl p-6 text-base font-medium focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600/20 transition-all resize-none shadow-inner"
-                      placeholder="Any final notes or observations for the command team..."
+                      placeholder="Any final notes or observations regarding your submission..."
                       value={submissionMsg}
                       onChange={(e) => setSubmissionMsg(e.target.value)}
                     />
@@ -571,7 +572,7 @@ const TaskDetailsPage = () => {
                   rightIcon={<Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
                 >
                   {currentIndex < sequence.length - 1
-                    ? "Verify & Next Protocol"
+                    ? "Save & Next Task"
                     : "Finalize Submission"}
                 </Button>
               </form>
@@ -586,7 +587,7 @@ const TaskDetailsPage = () => {
                 <CheckCircle2 size={48} className="text-emerald-500" />
               </div>
               <h2 className="text-3xl font-black font-heading text-slate-900 tracking-tight">
-                Protocol Secured
+                Submission Verified
               </h2>
               <p className="text-slate-600 mt-4 text-lg font-medium max-w-md mx-auto">
                 This mission objective has been verified and registered in the system.
@@ -611,13 +612,13 @@ const TaskDetailsPage = () => {
               </div>
               <h2 className="text-3xl font-black font-heading text-slate-900 tracking-tight">
                 {currentIndex < sequence.length - 1
-                  ? "Objective Neutralized!"
-                  : "Campaign Successful!"}
+                  ? "Section Complete!"
+                  : "Task Completed!"}
               </h2>
-              <p className="text-slate-600 mt-4 text-lg font-medium max-w-md mx-auto leading-relaxed">
-                {currentIndex < sequence.length - 1
-                  ? "Submission successful. Stand by for the next protocol briefing..."
-                  : "Operational complete. All objectives for this cycle have been met!"}
+              <p className="text-slate-500 font-medium text-sm mt-2 max-w-sm mx-auto leading-relaxed">
+                {task.status === "COMPLETED"
+                  ? "Your work has been verified."
+                  : "Submission received and ready for review."}
               </p>
               {currentIndex < sequence.length - 1 ? (
                 <Button
@@ -626,14 +627,14 @@ const TaskDetailsPage = () => {
                   }
                   className="mt-10 h-16 px-12 bg-emerald-600 hover:bg-emerald-700 border-none rounded-2xl shadow-xl shadow-emerald-600/20"
                 >
-                  Advance to Next Protocol
+                  Advance to Next Task
                 </Button>
               ) : (
                 <Button
                   onClick={() => navigate("/dashboard")}
                   className="mt-10 h-16 px-12 bg-slate-900 hover:bg-indigo-600 border-none rounded-2xl shadow-xl shadow-slate-900/10"
                 >
-                  Return to Command Hub
+                  Back to Dashboard
                 </Button>
               )}
             </motion.div>
@@ -643,7 +644,7 @@ const TaskDetailsPage = () => {
         <div className="space-y-8">
           <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm group">
             <h3 className="text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em] mb-8">
-              Protocol Intel
+              Task Information
             </h3>
             <div className="space-y-6">
               <div className="flex items-center justify-between">
@@ -700,8 +701,8 @@ const TaskDetailsPage = () => {
                   </div>
                   <p className="font-black text-[10px] uppercase tracking-widest mb-3 opacity-60">
                     {task.status === "REDO"
-                      ? "Direct Order: Feedback"
-                      : "Intelligence Feedback"}
+                      ? "Revision Required"
+                      : "Admin Feedback"}
                   </p>
                   <p className="font-bold italic text-base leading-snug">
                     "{task.submission.adminFeedback}"
@@ -711,16 +712,20 @@ const TaskDetailsPage = () => {
             </div>
           </div>
 
-          <div className="bg-indigo-600 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-indigo-600/30 relative overflow-hidden group">
-            <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700" />
-            <h3 className="text-xl font-black font-heading mb-3 tracking-tight">Need Assistance?</h3>
-            <p className="text-sm text-indigo-100 leading-relaxed mb-8 font-medium">
-              If protocol requirements are unclear, escalate your query to Command Headquarters for immediate clarification.
+          <div className="bg-indigo-600 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-indigo-600/30 relative overflow-hidden group">
+            <div className="absolute -right-10 -bottom-10 opacity-10 group-hover:scale-110 transition-transform duration-700">
+              <MessageSquare size={200} />
+            </div>
+            <h3 className="text-2xl font-black font-heading mb-6 tracking-tight">
+              Need Assistance?
+            </h3>
+            <p className="text-indigo-100 text-sm font-medium mb-10 leading-relaxed">
+              If you have any questions about the task requirements or need clarification on the next steps, feel free to contact our support team.
             </p>
             <button
               className="w-full py-4 bg-white/10 hover:bg-white text-white hover:text-indigo-600 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all border border-white/20 hover:border-white shadow-lg active:scale-95"
             >
-              Signal Headquarters
+              Contact Support
             </button>
           </div>
         </div>

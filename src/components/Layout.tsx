@@ -239,9 +239,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <p className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
                   {user?.firstName} {user?.lastName}
                 </p>
-                <p className="text-[10px] font-black text-indigo-600/70 uppercase tracking-[0.1em] mt-0.5">
-                  {user?.role}
-                </p>
               </div>
               <div className="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-bold text-sm ring-4 ring-slate-100 group-hover:ring-indigo-100 group-hover:bg-indigo-600 transition-all overflow-hidden shrink-0 shadow-sm">
                 {user?.avatar ? (
