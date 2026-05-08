@@ -17,6 +17,8 @@ interface Event {
   date: string;
   location?: string;
   type: string;
+  speaker?: string;
+  recordingLink?: string;
   status: string;
 }
 
@@ -24,6 +26,7 @@ interface AttendanceRecord {
   _id: string;
   event: Event;
   status: "PRESENT" | "ABSENT" | "EXCUSED";
+  marks: number;
   markedAt: string;
 }
 
@@ -105,9 +108,14 @@ const EventsPage = () => {
                         </span>
                       </div>
 
-                      <h3 className="text-xl font-black font-heading text-slate-900 mb-4 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
+                      <h3 className="text-xl font-black font-heading text-slate-900 mb-2 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
                         {event.title}
                       </h3>
+                      {event.speaker && (
+                        <p className="text-xs font-black text-indigo-500 uppercase tracking-widest mb-4">
+                          Speaker: {event.speaker}
+                        </p>
+                      )}
 
                       <div className="space-y-3 mb-8 flex-1">
                         <div className="flex items-center text-sm font-bold text-slate-500">
@@ -141,11 +149,21 @@ const EventsPage = () => {
                             href={event.location}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-auto block w-full py-4 text-center bg-slate-900 hover:bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-slate-900/10 hover:shadow-indigo-600/20 transition-all active:scale-95"
+                            className="mt-auto block w-full py-4 text-center bg-slate-900 hover:bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-slate-900/10 hover:shadow-indigo-600/20 transition-all active:scale-95 mb-3"
                           >
                             Initiate Link
                           </a>
                         )}
+                      {event.recordingLink && (
+                        <a
+                          href={event.recordingLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block w-full py-4 text-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-600/10 hover:shadow-emerald-700/20 transition-all active:scale-95"
+                        >
+                          Watch Recording
+                        </a>
+                      )}
                     </div>
                     <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                   </div>
@@ -179,6 +197,9 @@ const EventsPage = () => {
                         </th>
                         <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
                           Operational Status
+                        </th>
+                        <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                          Assigned Marks
                         </th>
                       </tr>
                     </thead>
@@ -221,6 +242,16 @@ const EventsPage = () => {
                               )}
                               {record.status}
                             </span>
+                          </td>
+                          <td className="px-10 py-8">
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg font-black text-slate-900">
+                                {record.marks}
+                              </span>
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                Points
+                              </span>
+                            </div>
                           </td>
                         </tr>
                       ))}
