@@ -49,6 +49,14 @@ const EventsPage = () => {
     return now >= thirtyMinutesBefore && now <= twoHoursAfter;
   };
 
+  const isOnline = (location?: string) => {
+    if (!location) return false;
+    return location.toLowerCase().startsWith("http") || 
+           location.toLowerCase().includes("zoom.us") || 
+           location.toLowerCase().includes("meet.google") ||
+           location.toLowerCase().includes("teams.microsoft");
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -158,9 +166,8 @@ const EventsPage = () => {
                         </p>
                       )}
 
-                      {event.location &&
-                        event.location.startsWith("http") &&
-                        isJoinable(event.date) && (
+                      {isOnline(event.location) ? (
+                        isJoinable(event.date) ? (
                           <a
                             href={event.location}
                             target="_blank"
@@ -170,14 +177,16 @@ const EventsPage = () => {
                           >
                             Join Briefing Now
                           </a>
-                        )}
-                      {event.location &&
-                        event.location.startsWith("http") &&
-                        !isJoinable(event.date) && (
+                        ) : (
                           <div className="mt-auto block w-full py-4 text-center bg-slate-100 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] mb-3 cursor-not-allowed">
-                            Link Inactive
+                            Link Active 30m Before
                           </div>
-                        )}
+                        )
+                      ) : event.type === "WEBINAR" || event.type === "SESSION" ? (
+                         <div className="mt-auto block w-full py-4 text-center bg-slate-100 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] mb-3 cursor-not-allowed">
+                            Link Pending
+                          </div>
+                      ) : null}
                       {event.recordingLink && (
                         <a
                           href={event.recordingLink}
@@ -381,7 +390,7 @@ const EventsPage = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                {selectedEvent.location && selectedEvent.location.startsWith("http") && (
+                {isOnline(selectedEvent.location) ? (
                   <a
                     href={selectedEvent.location}
                     target="_blank"
@@ -393,8 +402,12 @@ const EventsPage = () => {
                         : "bg-slate-200 text-slate-400 cursor-not-allowed"
                     )}
                   >
-                    {isJoinable(selectedEvent.date) ? "Join Live Briefing" : "Briefing Inactive"}
+                    {isJoinable(selectedEvent.date) ? "Join Live Briefing" : "Link Active 30m Before"}
                   </a>
+                ) : (selectedEvent.type === "WEBINAR" || selectedEvent.type === "SESSION") && (
+                   <div className="flex-1 py-5 text-center bg-slate-200 text-slate-400 rounded-2xl text-xs font-black uppercase tracking-[0.2em] cursor-not-allowed">
+                      Link Pending
+                   </div>
                 )}
                 {selectedEvent.recordingLink && (
                   <a
