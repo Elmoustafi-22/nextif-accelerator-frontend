@@ -22,7 +22,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import axiosInstance from "../api/axiosInstance";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ProfilePage = () => {
   const { user, updateUser } = useAuthStore();
@@ -136,6 +136,7 @@ const ProfilePage = () => {
         twitter: formData.twitter,
         linkedin: formData.linkedin,
         facebook: formData.facebook,
+        courseOfStudy: formData.courseOfStudy,
       });
 
       updateUser(response.data);
@@ -378,7 +379,10 @@ const ProfilePage = () => {
                     label="Active Specialization"
                     placeholder="Course of Study"
                     value={formData.courseOfStudy}
-                    disabled
+                    onChange={(e) =>
+                      setFormData({ ...formData, courseOfStudy: e.target.value })
+                    }
+                    disabled={!!user?.profile?.courseOfStudy}
                     icon={<User size={18} />}
                   />
                 </div>
@@ -582,6 +586,26 @@ const ProfilePage = () => {
           </motion.div>
         </div>
       )}
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {success && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-10 right-10 z-50 bg-slate-900 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-slate-800"
+          >
+            <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400">
+              <CheckCircle2 size={24} />
+            </div>
+            <div>
+              <h4 className="font-bold font-heading text-sm tracking-tight">Success</h4>
+              <p className="text-xs text-slate-400 font-medium">Your profile details have been saved.</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
