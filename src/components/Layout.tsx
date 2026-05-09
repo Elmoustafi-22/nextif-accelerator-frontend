@@ -16,6 +16,7 @@ import { cn } from "../utils/cn";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNotificationStore } from "../store/useNotificationStore";
 import NotificationDropdown from "./NotificationDropdown";
+import UserDropdown from "./UserDropdown";
 import { motion } from "framer-motion";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -23,6 +24,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     window.innerWidth >= 768
   );
   const [isHovered, setIsHovered] = React.useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = React.useState(false);
   const hoverTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -231,30 +233,39 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             
             <div className="h-8 w-px bg-slate-200/80"></div>
             
-            <Link
-              to="/profile"
-              className="flex items-center gap-3 pl-2 pr-1 py-1 hover:bg-slate-50 rounded-[1.25rem] transition-all group"
-            >
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
-                  {user?.firstName} {user?.lastName}
-                </p>
-              </div>
-              <div className="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-bold text-sm ring-4 ring-slate-100 group-hover:ring-indigo-100 group-hover:bg-indigo-600 transition-all overflow-hidden shrink-0 shadow-sm">
-                {user?.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt="Avatar"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>
-                    {user?.firstName?.[0]}
-                    {user?.lastName?.[0]}
-                  </span>
-                )}
-              </div>
-            </Link>
+            <div className="relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsUserDropdownOpen(!isUserDropdownOpen);
+                }}
+                className="flex items-center gap-3 pl-2 pr-1 py-1 hover:bg-slate-50 rounded-[1.25rem] transition-all group"
+              >
+                <div className="text-right hidden sm:block">
+                  <p className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                    {user?.firstName} {user?.lastName}
+                  </p>
+                </div>
+                <div className="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-bold text-sm ring-4 ring-slate-100 group-hover:ring-indigo-100 group-hover:bg-indigo-600 transition-all overflow-hidden shrink-0 shadow-sm">
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>
+                      {user?.firstName?.[0]}
+                      {user?.lastName?.[0]}
+                    </span>
+                  )}
+                </div>
+              </button>
+              <UserDropdown
+                isOpen={isUserDropdownOpen}
+                onClose={() => setIsUserDropdownOpen(false)}
+              />
+            </div>
           </div>
         </header>
 
