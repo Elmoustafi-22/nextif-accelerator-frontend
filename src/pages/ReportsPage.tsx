@@ -143,10 +143,10 @@ const ReportsPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div className="space-y-1">
           <h1 className="text-4xl font-black font-heading text-slate-900 tracking-tight">
-            Personnel Analytics
+            Performance Analytics
           </h1>
           <p className="text-slate-500 font-medium text-lg">
-            Comprehensive program performance and task achievement metrics.
+            Track your progress, task completion, and overall performance in the accelerator program.
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -156,9 +156,9 @@ const ReportsPage = () => {
               onChange={(e) => setTimeRange(e.target.value)}
               className="h-14 bg-white border border-slate-100 rounded-2xl px-6 pr-12 text-xs font-black font-heading uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600/20 appearance-none cursor-pointer shadow-sm transition-all"
             >
-              <option value="week">7 Day Cycle</option>
-              <option value="month">30 Day Cycle</option>
-              <option value="all">Full Protocol</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="all">All Time</option>
             </select>
             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none group-focus-within:text-indigo-600 transition-colors" />
           </div>
@@ -167,7 +167,7 @@ const ReportsPage = () => {
             className="h-14 px-8 rounded-2xl border-slate-100 bg-white shadow-sm hover:shadow-lg hover:shadow-indigo-500/5 transition-all text-xs font-black uppercase tracking-widest"
             leftIcon={<Download size={18} />}
           >
-            Export Intel
+            Export Report
           </Button>
         </div>
       </div>
@@ -176,25 +176,25 @@ const ReportsPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <StatCard
           icon={CheckCircle2}
-          label="Missions Completed"
+          label="Tasks Completed"
           value={completedTasks.length}
           color="emerald"
         />
         <StatCard
           icon={Clock}
-          label="Pending Protocol"
+          label="Pending Tasks"
           value={pendingTasks.length}
           color="amber"
         />
         <StatCard
           icon={Award}
-          label="Merit Points"
+          label="Total Points"
           value={totalPoints}
           color="fuchsia"
         />
         <StatCard
           icon={Target}
-          label="Efficiency Rate"
+          label="Completion Rate"
           value={`${completionRate}%`}
           color="indigo"
         />
@@ -210,9 +210,9 @@ const ReportsPage = () => {
             <div className="flex items-center justify-between mb-10">
               <div className="space-y-1">
                 <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
-                  Protocol Distribution
+                  Task Distribution
                 </h2>
-                <p className="text-slate-400 text-sm font-medium font-heading">Mission status and deployment tracking</p>
+                <p className="text-slate-400 text-sm font-medium font-heading">Overview of your assigned and completed tasks</p>
               </div>
               <div className="p-3 bg-slate-50 rounded-2xl text-slate-400">
                 <BarChart3 size={24} />
@@ -225,7 +225,7 @@ const ReportsPage = () => {
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-emerald-500" />
                     <span className="text-[10px] font-black font-heading text-slate-400 uppercase tracking-widest">
-                      Secured Objectives
+                      Completed Tasks
                     </span>
                   </div>
                   <span className="text-sm font-black font-heading text-emerald-600">
@@ -249,7 +249,7 @@ const ReportsPage = () => {
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-amber-500" />
                     <span className="text-[10px] font-black font-heading text-slate-400 uppercase tracking-widest">
-                      In-Progress Actions
+                      Pending Tasks
                     </span>
                   </div>
                   <span className="text-sm font-black font-heading text-amber-600">
@@ -270,13 +270,13 @@ const ReportsPage = () => {
 
               <div className="pt-8 border-t border-slate-50 flex items-center justify-between">
                 <span className="text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em]">
-                  Total Campaigns Logged
+                  Total Assigned Tasks
                 </span>
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-black font-heading text-slate-900 tracking-tighter">
                     {filteredTasks.length}
                   </span>
-                  <span className="text-xs font-black text-slate-300 uppercase">Operational Units</span>
+                  <span className="text-xs font-black text-slate-300 uppercase">Tasks</span>
                 </div>
               </div>
             </div>
@@ -293,13 +293,13 @@ const ReportsPage = () => {
                 <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
                   <Zap className="text-white" size={24} />
                 </div>
-                <h3 className="text-xl font-black font-heading tracking-tight">Active Cycle</h3>
+                <h3 className="text-xl font-black font-heading tracking-tight">Weekly Progress</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-2">
                 <span className="text-5xl font-black font-heading tracking-tighter">
                   {stats?.weeklyProgress || 0}%
                 </span>
-                <span className="text-sm font-black text-indigo-100 uppercase tracking-widest opacity-80">Sync</span>
+                <span className="text-sm font-black text-indigo-100 uppercase tracking-widest opacity-80">Done</span>
               </div>
               <p className="text-[10px] text-indigo-100 font-black uppercase tracking-[0.2em] opacity-60">
                 Weekly Task Progress
@@ -316,7 +316,7 @@ const ReportsPage = () => {
                   <Award size={24} />
                 </div>
                 <h3 className="text-xl font-black font-heading text-slate-900 tracking-tight">
-                  Status Feed
+                  Current Standing
                 </h3>
               </div>
               <div className="space-y-6">
@@ -366,9 +366,9 @@ const ReportsPage = () => {
         <div className="p-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="space-y-1">
             <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
-              Activity History
+              Recent Activity
             </h2>
-            <p className="text-slate-400 text-sm font-medium font-heading tracking-tight">Real-time program participation history</p>
+            <p className="text-slate-400 text-sm font-medium font-heading tracking-tight">Log of your recent tasks and points earned</p>
           </div>
           <div className="p-3 bg-white rounded-2xl text-slate-400 shadow-sm">
             <Calendar size={24} />
@@ -381,7 +381,7 @@ const ReportsPage = () => {
                 <BarChart3 className="text-slate-200" size={40} />
               </div>
               <p className="text-slate-400 font-black font-heading uppercase tracking-widest text-xs">
-                Intelligence database empty for this cycle
+                No activity found for this period
               </p>
             </div>
           ) : (
@@ -410,7 +410,7 @@ const ReportsPage = () => {
                       {task.title}
                     </h4>
                     <p className="text-xs text-slate-400 font-black font-heading uppercase tracking-widest mt-1 opacity-70">
-                      {new Date(task.createdAt).toLocaleDateString()} • {task.rewardPoints || 0} XP Merit
+                      {new Date(task.createdAt).toLocaleDateString()} • {task.rewardPoints || 0} XP
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
@@ -422,7 +422,7 @@ const ReportsPage = () => {
                           : "bg-indigo-50 border-indigo-100 text-indigo-700"
                       )}
                     >
-                      {task.status || "Deployed"}
+                      {task.status || "Assigned"}
                     </span>
                   </div>
                 </div>
