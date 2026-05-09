@@ -66,10 +66,7 @@ const ReportsPage = () => {
   const pendingTasks = filteredTasks.filter(
     (t: any) => t.status !== "COMPLETED"
   );
-  const totalPoints = completedTasks.reduce(
-    (sum: number, t: any) => sum + (t.rewardPoints || 0),
-    0
-  );
+  const totalPoints = stats?.pointsEarned || 0;
   const completionRate =
     filteredTasks.length > 0
       ? Math.round((completedTasks.length / filteredTasks.length) * 100)
@@ -325,19 +322,37 @@ const ReportsPage = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-black font-heading text-slate-400 uppercase tracking-widest">
-                    Operational XP
+                    Task Points
                   </span>
-                  <span className="text-2xl font-black font-heading text-indigo-600 tracking-tight">
-                    {stats?.totalPoints || 0}
+                  <span className="text-xl font-black font-heading text-indigo-600 tracking-tight">
+                    {stats?.taskPoints || 0}
                   </span>
                 </div>
                 <div className="h-px bg-slate-50 w-full" />
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-black font-heading text-slate-400 uppercase tracking-widest">
-                    Current Rank
+                    Attendance Points
+                  </span>
+                  <span className="text-xl font-black font-heading text-emerald-600 tracking-tight">
+                    {stats?.attendancePoints || 0}
+                  </span>
+                </div>
+                <div className="h-px bg-slate-50 w-full" />
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black font-heading text-slate-400 uppercase tracking-widest">
+                    Total XP
+                  </span>
+                  <span className="text-2xl font-black font-heading text-fuchsia-600 tracking-tight">
+                    {stats?.pointsEarned || 0}
+                  </span>
+                </div>
+                <div className="h-px bg-slate-50 w-full" />
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black font-heading text-slate-400 uppercase tracking-widest">
+                    Global Rank
                   </span>
                   <span className="px-4 py-2 bg-indigo-50 text-indigo-700 text-[10px] font-black font-heading uppercase tracking-widest rounded-xl border border-indigo-100 shadow-sm">
-                    Fellows
+                    {stats?.globalRank || "Fellows"}
                   </span>
                 </div>
               </div>
