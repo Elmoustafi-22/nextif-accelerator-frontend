@@ -21,7 +21,7 @@ const RecordingsPage = () => {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
+    <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Session Recordings</h1>
       </div>
@@ -37,14 +37,18 @@ const RecordingsPage = () => {
               <ChevronDown className={`w-5 h-5 transition-transform ${expandedId === rec._id ? "rotate-180" : ""}`} />
             </button>
             {expandedId === rec._id && (
-              <div className="p-4 border-t space-y-4">
-                {rec.description && <p className="text-slate-600">{rec.description}</p>}
-                {rec.links.map((link, idx) => (
-                    <div key={idx} className="space-y-2">
-                        <p className="font-medium text-slate-700">{link.title}</p>
-                        <VideoPlayer url={link.url} />
-                    </div>
-                ))}
+              <div className="py-4 sm:py-6 border-t space-y-6">
+                {rec.description && <p className="text-slate-600 px-4 sm:px-6">{rec.description}</p>}
+                <div className="space-y-6">
+                  {rec.links.map((link, idx) => (
+                      <div key={idx} className="space-y-3">
+                          <p className="font-medium text-slate-700 px-4 sm:px-6">{link.title}</p>
+                          <div className="px-1 sm:px-6">
+                              <VideoPlayer url={link.url} />
+                          </div>
+                      </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
