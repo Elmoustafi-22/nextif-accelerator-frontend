@@ -410,14 +410,29 @@ const EventsPage = () => {
                    </div>
                 )}
                 {selectedEvent.recordingLink && (
-                  <a
-                    href={selectedEvent.recordingLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 py-5 text-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
-                  >
-                    Watch Recording
-                  </a>
+                  <div className="space-y-4 pt-6">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Session Recording</p>
+                    {selectedEvent.recordingLink.includes("drive.google.com") ? (
+                      <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 shadow-xl">
+                        <iframe
+                          src={selectedEvent.recordingLink.replace("/view?usp=sharing", "/preview").replace("/view", "/preview")}
+                          className="w-full h-full"
+                          frameBorder="0"
+                          allow="autoplay; encrypted-media"
+                          allowFullScreen
+                        />
+                      </div>
+                    ) : (
+                      <a
+                        href={selectedEvent.recordingLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block w-full py-5 text-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
+                      >
+                        Watch Recording
+                      </a>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
