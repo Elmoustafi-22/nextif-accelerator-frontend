@@ -50,7 +50,12 @@ const LoginPage = () => {
         navigate("/dashboard");
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Something went wrong. Please try again.");
+      console.error("Login error details:", err);
+      const message = err.response?.data?.message || 
+                     (typeof err.response?.data === 'string' ? err.response.data : null) ||
+                     err.message || 
+                     "Something went wrong. Please try again.";
+      setError(message);
     } finally {
       setIsLoading(false);
     }
