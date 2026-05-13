@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
 
 import LoginPage from "../pages/LoginPage";
+import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
 import FellowsDashboard from "../pages/FellowsDashboard";
 import TasksPage from "../pages/TasksPage";
@@ -44,6 +45,7 @@ const AppRoutes = () => {
     <Routes>
       {/* Public Routes */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       {/* Protected Routes - Ambassador Only */}

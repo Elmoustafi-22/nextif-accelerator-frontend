@@ -157,7 +157,11 @@ const LoginPage = () => {
                     <motion.div key="returning" initial={{ opacity: 0, height: 0, y: 10 }} animate={{ opacity: 1, height: "auto", y: 0 }} exit={{ opacity: 0, height: 0, y: -10 }} transition={{ duration: 0.3 }}>
                       <Input label="Password" type="password" placeholder="••••••••" required value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} icon={<Lock className="w-4 h-4" />} />
                       <div className="flex justify-end mt-2">
-                        <button type="button" className="text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
+                        <button 
+                          type="button" 
+                          onClick={() => navigate("/forgot-password")}
+                          className="text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
+                        >
                           Forgot password?
                         </button>
                       </div>
