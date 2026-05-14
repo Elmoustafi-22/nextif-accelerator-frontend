@@ -86,24 +86,24 @@ const FellowsDashboard = () => {
   };
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
+    <div className="space-y-6 md:space-y-10 animate-in fade-in duration-700">
       {/* Header & Progress Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-        <div className="space-y-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 md:gap-8">
+        <div className="space-y-1 md:space-y-2">
           <motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-4xl font-black font-heading text-slate-900 tracking-tight"
+            className="text-2xl md:text-4xl font-black font-heading text-slate-900 tracking-tight"
           >
             Welcome back, <span className="text-indigo-600">{user?.firstName || "Ambassador"}</span> 👋
           </motion.h1>
-          <p className="text-slate-500 font-medium text-lg">
+          <p className="text-slate-500 font-medium text-sm md:text-lg">
             Monitor your program progress and task achievements.
           </p>
         </div>
 
         {/* Weekly Progress Bar */}
-        <div className="w-full lg:max-w-md bg-white p-7 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col gap-4 relative overflow-hidden group">
+        <div className="w-full lg:max-w-md bg-white p-5 md:p-7 rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm flex flex-col gap-3 md:gap-4 relative overflow-hidden group">
           <div className="absolute -top-12 -right-12 w-32 h-32 bg-indigo-50 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
 
           <div className="flex justify-between items-center text-[10px] font-black font-heading uppercase tracking-[0.2em] relative z-10">
@@ -137,11 +137,11 @@ const FellowsDashboard = () => {
       </div>
 
       {/* Top Content Row: Tactical Briefings & Intelligence */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Tactical Briefings (Upcoming Events) */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 md:space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-black font-heading text-slate-900 tracking-tight uppercase tracking-widest flex items-center gap-3">
+            <h2 className="text-base md:text-xl font-black font-heading text-slate-900 tracking-tight uppercase tracking-widest flex items-center gap-2 md:gap-3">
               <span className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse" />
               Upcoming Sessions
             </h2>
@@ -151,20 +151,20 @@ const FellowsDashboard = () => {
           </div>
           
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="h-48 bg-slate-50 rounded-[2.5rem] animate-pulse" />
-              <div className="h-48 bg-slate-50 rounded-[2.5rem] animate-pulse" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="h-40 md:h-48 bg-slate-50 rounded-2xl md:rounded-[2.5rem] animate-pulse" />
+              <div className="h-40 md:h-48 bg-slate-50 rounded-2xl md:rounded-[2.5rem] animate-pulse" />
             </div>
           ) : upcomingEvents.length === 0 ? (
-            <div className="bg-slate-50 p-12 rounded-[2.5rem] border border-slate-100 text-center">
-               <p className="text-slate-400 font-bold font-heading uppercase tracking-widest text-xs">
+            <div className="bg-slate-50 p-8 md:p-12 rounded-2xl md:rounded-[2.5rem] border border-slate-100 text-center">
+               <p className="text-slate-400 font-bold font-heading uppercase tracking-widest text-[10px] md:text-xs">
                 No sessions scheduled.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {upcomingEvents.map((event: any) => (
-                <div key={event._id} className="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group border border-slate-800 shadow-xl shadow-slate-900/10 hover:shadow-indigo-500/10 transition-all duration-500">
+                <div key={event._id} className="bg-slate-900 rounded-2xl md:rounded-[2.5rem] p-6 md:p-8 text-white relative overflow-hidden group border border-slate-800 shadow-xl shadow-slate-900/10 hover:shadow-indigo-500/10 transition-all duration-500">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-500/20 transition-all" />
                   <div className="flex justify-between items-start mb-6 relative z-10">
                     <span className="text-[9px] font-black tracking-[0.2em] text-indigo-400 bg-indigo-500/10 px-3 py-1.5 rounded-xl uppercase border border-indigo-500/20">
@@ -220,14 +220,14 @@ const FellowsDashboard = () => {
         </div>
 
         {/* Intelligence (Notifications) */}
-        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col group">
-          <div className="p-8 border-b border-slate-100 bg-slate-50/30">
-            <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
+        <div className="bg-white rounded-2xl md:rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col group">
+          <div className="p-6 md:p-8 border-b border-slate-100 bg-slate-50/30">
+            <h2 className="text-xl md:text-2xl font-black font-heading text-slate-900 tracking-tight">
               Updates & Activity
             </h2>
           </div>
-          <div className="p-8 flex-1">
-            <div className="space-y-8">
+          <div className="p-6 md:p-8 flex-1">
+            <div className="space-y-6 md:space-y-8">
               {loading ? (
                 Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="h-16 bg-slate-50 rounded-2xl animate-pulse" />
@@ -277,16 +277,16 @@ const FellowsDashboard = () => {
       </div>
 
       {/* Active Tasks */}
-      <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col group">
-        <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
-          <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
+      <div className="bg-white rounded-2xl md:rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col group">
+        <div className="p-6 md:p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/30">
+          <h2 className="text-xl md:text-2xl font-black font-heading text-slate-900 tracking-tight">
             Active Tasks
           </h2>
-          <button onClick={() => window.location.reload()} className="text-indigo-600 text-xs font-black font-heading uppercase tracking-widest hover:bg-white px-5 py-2.5 rounded-xl transition-all border border-slate-200">
+          <button onClick={() => window.location.reload()} className="text-indigo-600 text-[10px] md:text-xs font-black font-heading uppercase tracking-widest hover:bg-white px-3 md:px-5 py-2 md:py-2.5 rounded-xl transition-all border border-slate-200">
             Sync Data
           </button>
         </div>
-        <div className="p-8">
+        <div className="p-6 md:p-8">
           <div className="space-y-4">
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
@@ -298,21 +298,21 @@ const FellowsDashboard = () => {
               </p>
             ) : (
               tasks.slice(0, 5).map((task: any) => (
-                <Link key={task._id} to={`/tasks/${task._id}`} className="flex items-center justify-between p-6 rounded-[2rem] hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group/task">
-                  <div className="flex items-center gap-6">
-                    <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center transition-all shadow-sm", task.status === "COMPLETED" ? "bg-emerald-50 text-emerald-600" : "bg-indigo-50 text-indigo-600")}>
-                      {task.status === "COMPLETED" ? <CheckCircle2 size={24} /> : <Clock size={24} />}
+                <Link key={task._id} to={`/tasks/${task._id}`} className="flex items-center justify-between p-4 md:p-6 rounded-2xl md:rounded-[2rem] hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group/task">
+                  <div className="flex items-center gap-4 md:gap-6">
+                    <div className={cn("w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center transition-all shadow-sm", task.status === "COMPLETED" ? "bg-emerald-50 text-emerald-600" : "bg-indigo-50 text-indigo-600")}>
+                      {task.status === "COMPLETED" ? <CheckCircle2 size={20} className="md:w-6 md:h-6" /> : <Clock size={20} className="md:w-6 md:h-6" />}
                     </div>
                     <div>
-                      <p className="font-black font-heading text-slate-900 group-hover/task:text-indigo-600 transition-colors tracking-tight">
+                      <p className="text-sm md:text-base font-black font-heading text-slate-900 group-hover/task:text-indigo-600 transition-colors tracking-tight">
                         {task.title}
                       </p>
-                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                      <p className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest">
                         Due {new Date(task.dueDate).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
-                  <ChevronRight size={20} className="text-slate-300 group-hover/task:text-indigo-600 group-hover/task:translate-x-1 transition-all" />
+                  <ChevronRight size={18} className="text-slate-300 group-hover/task:text-indigo-600 group-hover/task:translate-x-1 transition-all md:w-5 md:h-5" />
                 </Link>
               ))
             )}

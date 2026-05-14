@@ -54,25 +54,25 @@ const TasksPage = () => {
 
   return (
     <div className="space-y-10 animate-in fade-in duration-700">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 md:gap-8">
         <div>
-          <h1 className="text-4xl font-black font-heading text-slate-900 tracking-tight">
+          <h1 className="text-2xl md:text-4xl font-black font-heading text-slate-900 tracking-tight">
             Mission Hub
           </h1>
-          <p className="text-slate-500 mt-2 font-medium text-lg">
+          <p className="text-slate-500 mt-1 md:mt-2 font-medium text-sm md:text-lg">
             {activeTab === "active"
               ? "Track and manage your active operations."
               : "Review your operational history and achievements."}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm self-start">
+        <div className="flex items-center gap-1.5 md:gap-2 bg-white p-1.5 md:p-2 rounded-2xl border border-slate-100 shadow-sm self-start w-full sm:w-auto">
           <button
             onClick={() => setActiveTab("active")}
             className={cn(
-              "px-8 py-3 rounded-xl text-sm font-black font-heading transition-all duration-300 flex items-center gap-2.5",
+              "flex-1 sm:flex-none px-4 md:px-8 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-black font-heading transition-all duration-300 flex items-center justify-center gap-2",
               activeTab === "active"
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 scale-105"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 scale-[1.02] md:scale-105"
                 : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
             )}
           >
@@ -81,9 +81,9 @@ const TasksPage = () => {
           <button
             onClick={() => setActiveTab("history")}
             className={cn(
-              "px-8 py-3 rounded-xl text-sm font-black font-heading transition-all duration-300 flex items-center gap-2.5",
+              "flex-1 sm:flex-none px-4 md:px-8 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-black font-heading transition-all duration-300 flex items-center justify-center gap-2",
               activeTab === "history"
-                ? "bg-slate-900 text-white shadow-lg shadow-slate-900/20 scale-105"
+                ? "bg-slate-900 text-white shadow-lg shadow-slate-900/20 scale-[1.02] md:scale-105"
                 : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
             )}
           >
@@ -103,7 +103,7 @@ const TasksPage = () => {
             placeholder="Search missions..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-5 py-4 bg-white border border-slate-100 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600/20 transition-all shadow-sm placeholder:text-slate-300"
+            className="w-full pl-11 pr-5 py-3.5 md:py-4 bg-white border border-slate-100 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600/20 transition-all shadow-sm placeholder:text-slate-300"
           />
         </div>
 
@@ -146,12 +146,12 @@ const TasksPage = () => {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white border border-slate-100 rounded-[3rem] p-24 text-center shadow-sm"
+          className="bg-white border border-slate-100 rounded-2xl md:rounded-[3rem] p-8 md:p-24 text-center shadow-sm"
         >
-          <div className="w-28 h-28 bg-slate-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
-            <Filter className="text-slate-300" size={48} />
+          <div className="w-20 h-20 md:w-28 md:h-28 bg-slate-50 rounded-2xl md:rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 md:mb-8 shadow-inner">
+            <Filter className="text-slate-300" size={32} />
           </div>
-          <h2 className="text-3xl font-black text-slate-900 font-heading tracking-tight">
+          <h2 className="text-xl md:text-3xl font-black text-slate-900 font-heading tracking-tight">
             No missions detected
           </h2>
           <p className="text-slate-500 mt-4 max-w-sm mx-auto font-medium text-lg">
@@ -184,19 +184,19 @@ const TasksPage = () => {
               key={task._id}
               to={`/tasks/${task._id}`}
               className={cn(
-                "bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-2 transition-all duration-500 group overflow-hidden flex flex-col",
+                "bg-white rounded-2xl md:rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1 md:hover:-translate-y-2 transition-all duration-500 group overflow-hidden flex flex-col",
                 view === "list" && "md:flex-row md:items-center md:p-2"
               )}
             >
               <div
                 className={cn(
-                  "p-10 flex-1",
-                  view === "list" && "p-4 flex flex-row items-center gap-8"
+                  "p-6 md:p-10 flex-1",
+                  view === "list" && "p-4 md:p-4 flex flex-row items-center gap-4 md:gap-8"
                 )}
               >
                 <div
                   className={cn(
-                    "w-20 h-20 rounded-[1.75rem] flex items-center justify-center mb-8 transition-all duration-500 group-hover:scale-110 shadow-sm relative overflow-hidden",
+                    "w-14 h-14 md:w-20 md:h-20 rounded-xl md:rounded-[1.75rem] flex items-center justify-center mb-6 md:mb-8 transition-all duration-500 group-hover:scale-110 shadow-sm relative overflow-hidden",
                     task.status === "COMPLETED"
                       ? "bg-emerald-50 text-emerald-600"
                       : task.status === "REDO"
@@ -209,40 +209,40 @@ const TasksPage = () => {
                 >
                   <div className="absolute inset-0 bg-white/40 opacity-0 group-hover:opacity-100 transition-opacity" />
                   {task.status === "COMPLETED" ? (
-                    <CheckCircle2 size={36} className="relative z-10" />
+                    <CheckCircle2 size={24} className="md:w-9 md:h-9 relative z-10" />
                   ) : (
-                    <Clock size={36} className="relative z-10" />
+                    <Clock size={24} className="md:w-9 md:h-9 relative z-10" />
                   )}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-3 gap-4">
-                    <h3 className="text-2xl font-black font-heading text-slate-900 group-hover:text-indigo-600 transition-colors truncate tracking-tight">
+                  <div className="flex items-start justify-between mb-2 md:mb-3 gap-3 md:gap-4">
+                    <h3 className="text-lg md:text-2xl font-black font-heading text-slate-900 group-hover:text-indigo-600 transition-colors truncate tracking-tight">
                       {task.title}
                     </h3>
                     {task.isBonus && (
-                      <span className="px-3 py-1 bg-fuchsia-100 text-fuchsia-700 text-[9px] font-black font-heading uppercase rounded-lg tracking-widest shrink-0 border border-fuchsia-200 shadow-sm">
+                      <span className="px-2 md:px-3 py-1 bg-fuchsia-100 text-fuchsia-700 text-[8px] md:text-[9px] font-black font-heading uppercase rounded-lg tracking-widest shrink-0 border border-fuchsia-200 shadow-sm">
                         Bonus
                       </span>
                     )}
                   </div>
 
-                  <p className="text-base text-slate-500 line-clamp-2 mb-8 leading-relaxed font-medium">
+                  <p className="text-sm md:text-base text-slate-500 line-clamp-2 mb-6 md:mb-8 leading-relaxed font-medium">
                     {task.description}
                   </p>
 
-                  <div className="flex flex-wrap items-center gap-4 font-heading">
-                    <div className="flex items-center gap-2.5 text-[10px] font-black text-slate-400 bg-slate-50 px-4 py-2 rounded-xl uppercase tracking-widest border border-slate-100">
-                      <Calendar size={14} className="text-slate-300" />
-                      {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} @ {new Date(task.dueDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                  <div className="flex flex-wrap items-center gap-3 md:gap-4 font-heading">
+                    <div className="flex items-center gap-2 text-[9px] md:text-[10px] font-black text-slate-400 bg-slate-50 px-3 md:px-4 py-1.5 md:py-2 rounded-xl uppercase tracking-widest border border-slate-100">
+                      <Calendar size={12} className="text-slate-300 md:w-[14px] md:h-[14px]" />
+                      {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </div>
-                    <div className="flex items-center gap-2.5 text-[10px] font-black text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl uppercase tracking-widest border border-indigo-100">
-                      <TrendingUp size={14} className="text-indigo-400" />
+                    <div className="flex items-center gap-2 text-[9px] md:text-[10px] font-black text-indigo-600 bg-indigo-50 px-3 md:px-4 py-1.5 md:py-2 rounded-xl uppercase tracking-widest border border-indigo-100">
+                      <TrendingUp size={12} className="text-indigo-400 md:w-[14px] md:h-[14px]" />
                       {task.rewardPoints} XP
                     </div>
                     <span
                       className={cn(
-                        "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border shadow-sm",
+                        "px-3 md:px-4 py-1.5 md:py-2 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest border shadow-sm",
                         task.status === "COMPLETED"
                           ? "bg-emerald-50 border-emerald-100 text-emerald-700"
                           : task.status === "REDO"
@@ -251,20 +251,20 @@ const TasksPage = () => {
                       )}
                     >
                       {task.status === "REDO"
-                        ? "Redo Required"
-                        : task.status || "In Progress"}
+                        ? "Redo"
+                        : task.status || "Open"}
                     </span>
                   </div>
                 </div>
               </div>
 
               {view === "grid" && (
-                <div className="px-10 py-6 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between mt-auto group-hover:bg-white transition-colors">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                <div className="px-6 md:px-10 py-4 md:py-6 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between mt-auto group-hover:bg-white transition-colors">
+                  <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                     {task.verificationType} Protocol
                   </p>
-                  <div className="flex items-center gap-2 text-indigo-600 text-xs font-black uppercase tracking-widest group-hover:translate-x-2 transition-transform">
-                    Briefing <ChevronRight size={16} />
+                  <div className="flex items-center gap-1.5 md:gap-2 text-indigo-600 text-[10px] md:text-xs font-black uppercase tracking-widest group-hover:translate-x-1 md:group-hover:translate-x-2 transition-transform">
+                    Briefing <ChevronRight size={14} className="md:w-4 md:h-4" />
                   </div>
                 </div>
               )}

@@ -208,10 +208,10 @@ const TaskDetailsPage = () => {
 
   return (
     <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
         <button
           onClick={() => navigate(-1)}
-          className="group flex items-center gap-3 text-slate-400 hover:text-slate-900 transition-all font-bold text-sm border-none bg-transparent cursor-pointer"
+          className="group flex items-center gap-3 text-slate-400 hover:text-slate-900 transition-all font-bold text-sm border-none bg-transparent cursor-pointer self-start"
         >
           <div className="p-2 bg-white rounded-xl border border-slate-100 group-hover:border-slate-200 shadow-sm transition-all">
             <ArrowLeft size={18} />
@@ -220,13 +220,13 @@ const TaskDetailsPage = () => {
         </button>
 
         {sequence.length > 1 && (
-          <div className="flex items-center gap-4 px-5 py-3 bg-white rounded-2xl border border-slate-100 shadow-sm text-xs font-black font-heading text-slate-900">
-            <span className="text-slate-300 uppercase tracking-widest">Task Progress</span>
-            <div className="flex items-center gap-3">
-              <span className="bg-indigo-50 text-indigo-600 px-2 py-1 rounded-lg">
+          <div className="flex items-center gap-3 md:gap-4 px-4 md:px-5 py-2.5 md:py-3 bg-white rounded-2xl border border-slate-100 shadow-sm text-[10px] md:text-xs font-black font-heading text-slate-900">
+            <span className="text-slate-300 uppercase tracking-widest hidden sm:inline">Task Progress</span>
+            <div className="flex items-center gap-2 md:gap-3 flex-1 sm:flex-none">
+              <span className="bg-indigo-50 text-indigo-600 px-2 py-1 rounded-lg shrink-0">
                 {currentIndex + 1} / {sequence.length}
               </span>
-              <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div className="flex-1 w-full sm:w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{
@@ -241,14 +241,14 @@ const TaskDetailsPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <div className="lg:col-span-2 space-y-10">
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-sm relative overflow-hidden group">
+        <div className="lg:col-span-2 space-y-6 md:space-y-10">
+          <div className="bg-white rounded-2xl md:rounded-[2.5rem] border border-slate-100 p-6 md:p-10 shadow-sm relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-indigo-100/50 transition-colors" />
             
             <div className="relative z-10">
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 md:gap-6 mb-6 md:mb-8">
                 <div>
-                  <h1 className="text-3xl font-black font-heading text-slate-900 tracking-tight leading-tight">
+                  <h1 className="text-xl md:text-3xl font-black font-heading text-slate-900 tracking-tight leading-tight">
                     {task.title}
                   </h1>
                   <div className="flex flex-wrap items-center gap-4 mt-4 text-[10px] font-black font-heading uppercase tracking-widest">
@@ -281,12 +281,12 @@ const TaskDetailsPage = () => {
 
               <div className="prose prose-slate max-w-none">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
-                  <h3 className="text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em]">
+                  <div className="w-1 h-5 md:w-1.5 md:h-6 bg-indigo-600 rounded-full" />
+                  <h3 className="text-[10px] md:text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em]">
                     Task Briefing
                   </h3>
                 </div>
-                <div className="text-slate-600 leading-relaxed text-lg font-medium mb-10">
+                <div className="text-slate-600 leading-relaxed text-sm md:text-lg font-medium mb-8 md:mb-10">
                   {renderFormattedText(task.explanation || task.description)}
                 </div>
               </div>
@@ -303,27 +303,27 @@ const TaskDetailsPage = () => {
                       </div>
                       Submission History
                     </h3>
-                    <div className="space-y-6">
+                    <div className="space-y-4 md:space-y-6">
                       {(task.whatToDo || task.steps).map(
                         (item: any, index: number) => (
                           <div
                             key={index}
-                            className="space-y-4 p-8 bg-slate-50 rounded-[2rem] border border-slate-100/60 shadow-inner"
+                            className="space-y-3 md:space-y-4 p-5 md:p-8 bg-slate-50 rounded-2xl md:rounded-[2rem] border border-slate-100/60 shadow-inner"
                           >
-                            <div className="flex gap-5">
-                              <div className="w-10 h-10 rounded-xl bg-white text-indigo-600 flex items-center justify-center text-sm font-black shadow-sm shrink-0">
+                            <div className="flex gap-4 md:gap-5">
+                              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-white text-indigo-600 flex items-center justify-center text-xs md:text-sm font-black shadow-sm shrink-0">
                                 {index + 1}
                               </div>
                               <div>
-                                <h4 className="font-black text-slate-900 mb-1 text-lg">
+                                <h4 className="font-black text-slate-900 mb-0.5 md:mb-1 text-base md:text-lg">
                                   {item.title}
                                 </h4>
-                                <p className="text-sm text-slate-400 font-medium leading-relaxed italic opacity-80">
+                                <p className="text-xs md:text-sm text-slate-400 font-medium leading-relaxed italic opacity-80">
                                   {item.description}
                                 </p>
                               </div>
                             </div>
-                            <div className="bg-white p-6 rounded-2xl border border-slate-100 text-base text-slate-700 leading-relaxed font-medium shadow-sm">
+                            <div className="bg-white p-4 md:p-6 rounded-xl md:rounded-2xl border border-slate-100 text-sm md:text-base text-slate-700 leading-relaxed font-medium shadow-sm">
                               {responses[item._id] || "No data recorded for this step."}
                             </div>
                           </div>
@@ -391,19 +391,19 @@ const TaskDetailsPage = () => {
             task.status === "PENDING" ||
             task.status === "REDO" ||
             isEditing) ? (
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-sm">
-              <div className="flex items-center gap-3 mb-10">
-                <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
-                <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
+            <div className="bg-white rounded-2xl md:rounded-[2.5rem] border border-slate-100 p-6 md:p-10 shadow-sm">
+              <div className="flex items-center gap-3 mb-6 md:mb-10">
+                <div className="w-1 h-5 md:w-1.5 md:h-6 bg-indigo-600 rounded-full" />
+                <h2 className="text-xl md:text-2xl font-black font-heading text-slate-900 tracking-tight">
                   Task Submission
                 </h2>
               </div>
               
               <form onSubmit={handleSubmit} className="space-y-10">
-                <div className="space-y-8">
-                  <h3 className="text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em] flex items-center gap-3">
-                    <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
-                      <ListChecks size={16} />
+                <div className="space-y-6 md:space-y-8">
+                  <h3 className="text-[10px] md:text-xs font-black font-heading text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2 md:gap-3">
+                    <div className="p-1.5 md:p-2 bg-indigo-50 rounded-lg text-indigo-600">
+                      <ListChecks size={14} className="md:w-4 md:h-4" />
                     </div>
                     Action Steps
                   </h3>
@@ -412,29 +412,29 @@ const TaskDetailsPage = () => {
                     (item: any, idx: number) => (
                       <div
                         key={item._id || idx}
-                        className="space-y-6 p-8 bg-slate-50 rounded-[2rem] border border-slate-100 shadow-inner group/step focus-within:bg-white focus-within:shadow-xl focus-within:shadow-indigo-500/5 transition-all duration-300"
+                        className="space-y-4 md:space-y-6 p-5 md:p-8 bg-slate-50 rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-inner group/step focus-within:bg-white focus-within:shadow-xl focus-within:shadow-indigo-500/5 transition-all duration-300"
                       >
-                        <div className="flex gap-5">
-                          <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-sm font-black shrink-0 shadow-lg shadow-indigo-600/20 group-focus-within/step:scale-110 transition-transform">
+                        <div className="flex gap-4 md:gap-5">
+                          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xs md:text-sm font-black shrink-0 shadow-lg shadow-indigo-600/20 group-focus-within/step:scale-110 transition-transform">
                             {idx + 1}
                           </div>
                           <div>
-                            <h4 className="font-black text-slate-900 mb-1 text-lg">
+                            <h4 className="font-black text-slate-900 mb-0.5 md:mb-1 text-base md:text-lg">
                               {item.title}
                             </h4>
-                            <p className="text-sm text-slate-400 font-medium leading-relaxed italic opacity-80">
+                            <p className="text-xs md:text-sm text-slate-400 font-medium leading-relaxed italic opacity-80">
                               {item.description}
                             </p>
                           </div>
                         </div>
 
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                        <div className="space-y-2 md:space-y-3">
+                          <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
                             Observation / Outcome
                           </label>
                           <textarea
                             required
-                            className="w-full min-h-[140px] bg-white border border-slate-100 rounded-2xl p-5 text-base font-medium focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600/20 transition-all resize-none shadow-sm placeholder:text-slate-300"
+                            className="w-full min-h-[120px] md:min-h-[140px] bg-white border border-slate-100 rounded-xl md:rounded-2xl p-4 md:p-5 text-sm md:text-base font-medium focus:outline-none focus:ring-4 focus:ring-indigo-600/5 focus:border-indigo-600/20 transition-all resize-none shadow-sm placeholder:text-slate-300"
                             placeholder={`Document your results for: ${item.title}...`}
                             value={responses[item._id] || ""}
                             onChange={(e) =>
@@ -581,21 +581,21 @@ const TaskDetailsPage = () => {
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-emerald-50 rounded-[3rem] border border-emerald-100 p-12 text-center shadow-sm"
+              className="bg-emerald-50 rounded-2xl md:rounded-[3rem] p-8 md:p-12 text-center shadow-sm"
             >
-              <div className="w-24 h-24 bg-white rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-lg shadow-emerald-500/10">
-                <CheckCircle2 size={48} className="text-emerald-500" />
+              <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-xl md:rounded-[2rem] flex items-center justify-center mx-auto mb-6 md:mb-8 shadow-lg shadow-emerald-500/10">
+                <CheckCircle2 size={40} className="md:w-[48px] md:h-[48px] text-emerald-500" />
               </div>
-              <h2 className="text-3xl font-black font-heading text-slate-900 tracking-tight">
+              <h2 className="text-2xl md:text-3xl font-black font-heading text-slate-900 tracking-tight">
                 Submission Verified
               </h2>
-              <p className="text-slate-600 mt-4 text-lg font-medium max-w-md mx-auto">
+              <p className="text-slate-600 mt-3 md:mt-4 text-base md:text-lg font-medium max-w-md mx-auto">
                 This mission objective has been verified and registered in the system.
               </p>
               {new Date() < new Date(task.dueDate) && (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="mt-10 px-10 py-4 bg-white border border-emerald-100 text-emerald-700 font-black uppercase tracking-widest text-xs rounded-2xl hover:bg-emerald-100 hover:shadow-lg hover:shadow-emerald-500/5 transition-all active:scale-95"
+                  className="mt-8 md:mt-10 px-8 md:px-10 py-3 md:py-4 bg-white border border-emerald-100 text-emerald-700 font-black uppercase tracking-widest text-[10px] md:text-xs rounded-2xl hover:bg-emerald-100 hover:shadow-lg hover:shadow-emerald-500/5 transition-all active:scale-95"
                 >
                   Modify Records
                 </button>
@@ -605,17 +605,17 @@ const TaskDetailsPage = () => {
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-emerald-50 rounded-[3rem] border border-emerald-100 p-16 text-center shadow-sm"
+              className="bg-emerald-50 rounded-2xl md:rounded-[3rem] p-10 md:p-16 text-center shadow-sm"
             >
-              <div className="w-28 h-28 bg-white rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-xl shadow-emerald-500/10">
-                <CheckCircle2 size={56} className="text-emerald-500" />
+              <div className="w-24 h-24 md:w-28 md:h-28 bg-white rounded-2xl md:rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 md:mb-8 shadow-xl shadow-emerald-500/10">
+                <CheckCircle2 size={48} className="md:w-[56px] md:h-[56px] text-emerald-500" />
               </div>
-              <h2 className="text-3xl font-black font-heading text-slate-900 tracking-tight">
+              <h2 className="text-2xl md:text-3xl font-black font-heading text-slate-900 tracking-tight">
                 {currentIndex < sequence.length - 1
                   ? "Section Complete!"
                   : "Task Completed!"}
               </h2>
-              <p className="text-slate-500 font-medium text-sm mt-2 max-w-sm mx-auto leading-relaxed">
+              <p className="text-slate-500 font-medium text-xs md:text-sm mt-2 max-w-sm mx-auto leading-relaxed">
                 {task.status === "COMPLETED"
                   ? "Your work has been verified."
                   : "Submission received and ready for review."}
@@ -625,14 +625,14 @@ const TaskDetailsPage = () => {
                   onClick={() =>
                     navigate(`/tasks/${sequence[currentIndex + 1]._id}`)
                   }
-                  className="mt-10 h-16 px-12 bg-emerald-600 hover:bg-emerald-700 border-none rounded-2xl shadow-xl shadow-emerald-600/20"
+                  className="mt-8 md:mt-10 h-14 md:h-16 px-10 md:px-12 bg-emerald-600 hover:bg-emerald-700 border-none rounded-2xl shadow-xl shadow-emerald-600/20 text-sm md:text-base"
                 >
                   Advance to Next Task
                 </Button>
               ) : (
                 <Button
                   onClick={() => navigate("/dashboard")}
-                  className="mt-10 h-16 px-12 bg-slate-900 hover:bg-indigo-600 border-none rounded-2xl shadow-xl shadow-slate-900/10"
+                  className="mt-8 md:mt-10 h-14 md:h-16 px-10 md:px-12 bg-slate-900 hover:bg-indigo-600 border-none rounded-2xl shadow-xl shadow-slate-900/10 text-sm md:text-base"
                 >
                   Back to Dashboard
                 </Button>
