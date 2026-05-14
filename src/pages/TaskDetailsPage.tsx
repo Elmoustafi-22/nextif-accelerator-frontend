@@ -254,7 +254,7 @@ const TaskDetailsPage = () => {
                   <div className="flex flex-wrap items-center gap-4 mt-4 text-[10px] font-black font-heading uppercase tracking-widest">
                     <span className="flex items-center gap-2 text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
                       <Calendar size={14} className="text-slate-300" />
-                      Deadline: {new Date(task.dueDate).toLocaleDateString()}
+                      Deadline: {new Date(task.dueDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })} @ {new Date(task.dueDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     <span
                       className={cn(
@@ -667,9 +667,17 @@ const TaskDetailsPage = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-bold text-slate-400">Merit Points</span>
                 <span className="text-lg font-black text-indigo-600 font-heading">
-                  +{task.rewardPoints || 0} XP
+                  +{task.submission?.pointsAwarded || task.rewardPoints || 0} XP
                 </span>
               </div>
+              {task.submission?.grade && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-slate-400">Grade</span>
+                  <span className="text-lg font-black text-emerald-600 font-heading">
+                    {task.submission.grade} / 5
+                  </span>
+                </div>
+              )}
               {task.createdBy && (
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold text-slate-400">Officer</span>

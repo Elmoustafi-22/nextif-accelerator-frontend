@@ -19,10 +19,11 @@ interface Event {
   title: string;
   description: string;
   date: string;
+  endDate?: string;
   location?: string;
   type: string;
   speaker?: string;
-  recordingLink?: string;
+  recordingLinks?: { title: string; url: string }[];
   status: string;
 }
 
@@ -40,13 +41,20 @@ const EventsPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
-  const isJoinable = (eventDate: string) => {
+  const isJoinable = (eventDate: string, endDate?: string) => {
     const now = new Date();
     const eventTime = new Date(eventDate);
     const thirtyMinutesBefore = new Date(eventTime.getTime() - 30 * 60000);
-    const twoHoursAfter = new Date(eventTime.getTime() + 120 * 60000);
+    
+    let joinableUntil: Date;
+    if (endDate) {
+      joinableUntil = new Date(endDate);
+    } else {
+      // Fallback: 2 hours after start if no end date
+      joinableUntil = new Date(eventTime.getTime() + 120 * 60000);
+    }
 
-    return now >= thirtyMinutesBefore && now <= twoHoursAfter;
+    return now >= thirtyMinutesBefore && now <= joinableUntil;
   };
 
   const isOnline = (location?: string) => {
@@ -143,10 +151,12 @@ const EventsPage = () => {
                       <div className="space-y-3 mb-8 flex-1">
                         <div className="flex items-center text-sm font-bold text-slate-500">
                           <CalendarIcon className="w-5 h-5 mr-3 text-indigo-400" />
-                          {format(
-                            new Date(event.date),
-                            "EEE, MMM d, yyyy • p"
-                          )}
+                          {format(new Date(event.date), "EEE, MMM d, yyyy")}
+                        </div>
+                        <div className="flex items-center text-sm font-bold text-slate-500">
+                          <ClockIcon className="w-5 h-5 mr-3 text-indigo-400" />
+                          {format(new Date(event.date), "p")}
+                          {event.endDate && ` - ${format(new Date(event.endDate), "p")}`}
                         </div>
                         {event.location && (
                           <div className="flex items-center text-sm font-bold text-slate-500">
@@ -167,7 +177,7 @@ const EventsPage = () => {
                       )}
 
                       {isOnline(event.location) ? (
-                        isJoinable(event.date) ? (
+                        isJoinable(event.date, event.endDate) ? (
                           <a
                             href={event.location}
                             target="_blank"
@@ -187,16 +197,21 @@ const EventsPage = () => {
                             Link Pending
                           </div>
                       ) : null}
-                      {event.recordingLink && (
-                        <a
-                          href={event.recordingLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="block w-full py-4 text-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-600/10 hover:shadow-emerald-700/20 transition-all active:scale-95"
-                        >
-                          Watch Recording
-                        </a>
+                      {event.recordingLinks && event.recordingLinks.length > 0 && (
+                        <div className="space-y-2">
+                          {event.recordingLinks.map((link, idx) => (
+                            <a
+                              key={idx}
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="block w-full py-4 text-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-600/10 hover:shadow-emerald-700/20 transition-all active:scale-95"
+                            >
+                              {link.title || "Watch Recording"}
+                            </a>
+                          ))}
+                        </div>
                       )}
                     </div>
                     <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
@@ -338,6 +353,7 @@ const EventsPage = () => {
                       </p>
                       <p className="text-sm text-slate-500">
                         {format(new Date(selectedEvent.date), "p")}
+                        {selectedEvent.endDate && ` - ${format(new Date(selectedEvent.endDate), "p")}`}
                       </p>
                     </div>
                   </div>
@@ -397,41 +413,49 @@ const EventsPage = () => {
                     rel="noopener noreferrer"
                     className={cn(
                       "flex-1 py-5 text-center rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95",
-                      isJoinable(selectedEvent.date)
+                      isJoinable(selectedEvent.date, selectedEvent.endDate)
                         ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20"
                         : "bg-slate-200 text-slate-400 cursor-not-allowed"
                     )}
                   >
-                    {isJoinable(selectedEvent.date) ? "Join Live Briefing" : "Link Active 30m Before"}
+                    {isJoinable(selectedEvent.date, selectedEvent.endDate) ? "Join Live Briefing" : "Link Active 30m Before"}
                   </a>
                 ) : (selectedEvent.type === "WEBINAR" || selectedEvent.type === "SESSION") && (
                    <div className="flex-1 py-5 text-center bg-slate-200 text-slate-400 rounded-2xl text-xs font-black uppercase tracking-[0.2em] cursor-not-allowed">
                       Link Pending
                    </div>
                 )}
-                {selectedEvent.recordingLink && (
+                {selectedEvent.recordingLinks && selectedEvent.recordingLinks.length > 0 && (
                   <div className="space-y-4 pt-6">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Session Recording</p>
-                    {selectedEvent.recordingLink.includes("drive.google.com") ? (
-                      <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 shadow-xl">
-                        <iframe
-                          src={selectedEvent.recordingLink.replace("/view?usp=sharing", "/preview").replace("/view", "/preview")}
-                          className="w-full h-full"
-                          frameBorder="0"
-                          allow="autoplay; encrypted-media"
-                          allowFullScreen
-                        />
-                      </div>
-                    ) : (
-                      <a
-                        href={selectedEvent.recordingLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block w-full py-5 text-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
-                      >
-                        Watch Recording
-                      </a>
-                    )}
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Session Recordings</p>
+                    <div className="grid gap-4">
+                      {selectedEvent.recordingLinks.map((link, idx) => (
+                        link.url.includes("drive.google.com") ? (
+                          <div key={idx} className="space-y-2">
+                            <p className="text-sm font-bold text-slate-700">{link.title}</p>
+                            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 shadow-xl">
+                              <iframe
+                                src={link.url.replace("/view?usp=sharing", "/preview").replace("/view", "/preview")}
+                                className="w-full h-full"
+                                frameBorder="0"
+                                allow="autoplay; encrypted-media"
+                                allowFullScreen
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <a
+                            key={idx}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block w-full py-5 text-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
+                          >
+                            {link.title}
+                          </a>
+                        )
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
