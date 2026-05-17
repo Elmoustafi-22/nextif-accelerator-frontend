@@ -8,11 +8,14 @@ import {
   TrendingUp,
   ChevronRight,
   Video,
+  Award,
+  Zap,
 } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import axiosInstance from "../api/axiosInstance";
 import { cn } from "../utils/cn";
 import { generateGoogleCalendarLink } from "../utils/calendar";
+import { toast } from "react-hot-toast";
 
 const StatCard = ({ title, value, icon: Icon, color, trend }: any) => (
   <motion.div
@@ -55,21 +58,25 @@ const FellowsDashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [paymentConfig, setPaymentConfig] = useState<any>(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [tasksRes, statsRes, notesRes, eventsRes] = await Promise.all([
+        const [tasksRes, statsRes, notesRes, eventsRes, paymentRes] = await Promise.all([
           axiosInstance.get("/tasks/my/all"),
           axiosInstance.get("/ambassador/dashboard/stats"),
           axiosInstance.get("/notifications"),
           axiosInstance.get("/events?status=UPCOMING"),
+          axiosInstance.get("/payments/config").catch(() => ({ data: null })),
         ]);
         setTasks(tasksRes.data);
         setStats(statsRes.data);
         setNotifications(notesRes.data.slice(0, 5));
         setUpcomingEvents(eventsRes.data.slice(0, 2)); // Show top 2 upcoming
+        setPaymentConfig(paymentRes?.data);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       } finally {
@@ -78,6 +85,21 @@ const FellowsDashboard = () => {
     };
     fetchData();
   }, []);
+
+  const handleClaimCertificate = async () => {
+    try {
+      setPaymentLoading(true);
+      const response = await axiosInstance.post("/payments/initialize");
+      if (response.data.checkout_url) {
+        window.location.href = response.data.checkout_url;
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast.error("Failed to initialize payment process");
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
 
   const isJoinable = (eventDate: string) => {
     const now = new Date();
@@ -135,6 +157,63 @@ const FellowsDashboard = () => {
           </p>
         </div>
       </div>
+
+      {/* Certificate Claim Banner */}
+      {!user?.profile?.hasPaidCertificate && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-linear-to-r from-indigo-600 via-indigo-700 to-slate-900 rounded-[2.5rem] p-8 md:p-10 text-white shadow-2xl shadow-indigo-600/20 relative overflow-hidden group"
+        >
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-125 transition-transform duration-700" />
+          <div className="absolute bottom-0 left-0 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="space-y-4 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full border border-white/20 backdrop-blur-md">
+                <Zap size={14} className="text-amber-400 animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Program Milestone</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight">
+                Claim Your Certificate
+              </h2>
+              <p className="text-indigo-100/80 font-medium max-w-xl text-sm md:text-base leading-relaxed">
+                You've shown incredible dedication. Formalize your achievement with the official NextIF Accelerator Certificate of Completion.
+              </p>
+            </div>
+            
+            <div className="bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 w-full md:w-auto min-w-[300px] text-center">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <div className="p-3 bg-white/10 rounded-2xl">
+                  <Award className="text-white" size={32} />
+                </div>
+                <div className="text-left">
+                  <p className="text-[10px] font-black text-indigo-300 uppercase tracking-widest">Certificate Fee</p>
+                  <h4 className="text-3xl font-black font-heading tracking-tight">
+                    {paymentConfig?.displayPrice || "..."}
+                  </h4>
+                </div>
+              </div>
+              <button
+                onClick={handleClaimCertificate}
+                disabled={paymentLoading || !paymentConfig}
+                className="w-full py-5 bg-white text-indigo-600 hover:bg-indigo-50 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              >
+                {paymentLoading ? (
+                  <>
+                    <Clock className="animate-spin" size={18} /> Processing...
+                  </>
+                ) : (
+                  <>Secure Checkout</>
+                )}
+              </button>
+              <p className="mt-4 text-[9px] text-indigo-200 font-bold uppercase tracking-widest opacity-60">
+                Powered by Paystack
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Top Content Row: Tactical Briefings & Intelligence */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
