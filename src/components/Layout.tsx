@@ -12,6 +12,8 @@ import {
   Menu,
   Calendar,
   PlayCircle,
+  CreditCard,
+  Award,
 } from "lucide-react";
 import { cn } from "../utils/cn";
 import { useAuthStore } from "../store/useAuthStore";
@@ -88,6 +90,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { name: "Reports", href: "/reports", icon: BarChart3 },
     { name: "Events", href: "/events", icon: Calendar },
     { name: "Recordings", href: "/recordings", icon: PlayCircle },
+    { name: "Payments", href: "/payments", icon: CreditCard },
+    { name: "Certificate", href: "/certificate", icon: Award },
     { name: "Profile", href: "/profile", icon: UserIcon },
   ];
 

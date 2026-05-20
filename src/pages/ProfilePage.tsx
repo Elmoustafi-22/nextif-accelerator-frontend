@@ -25,8 +25,9 @@ import { useAuthStore } from "../store/useAuthStore";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import axiosInstance from "../api/axiosInstance";
+import { cn } from "../utils/cn";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "react-hot-toast";
+import { toast } from "../store/useToastStore";
 
 const ProfilePage = () => {
   const { user, updateUser } = useAuthStore();
@@ -41,6 +42,7 @@ const ProfilePage = () => {
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentConfig, setPaymentConfig] = useState<any>(null);
+  const [myPayments, setMyPayments] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchPaymentConfig = async () => {
@@ -55,6 +57,23 @@ const ProfilePage = () => {
       fetchPaymentConfig();
     }
   }, [user]);
+
+  useEffect(() => {
+    const fetchMyPayments = async () => {
+      try {
+        const res = await axiosInstance.get("/payments/my");
+        setMyPayments(res.data);
+      } catch (err) {
+        console.error("Failed to fetch my payment records:", err);
+      }
+    };
+    if (user?.profile?.hasPaidCertificate) {
+      fetchMyPayments();
+    }
+  }, [user]);
+
+  const successfulPayment = myPayments.find((p) => p.status === "SUCCESS");
+  const receiptUrl = successfulPayment?.receiptUrl;
 
   const handleClaimCertificate = async () => {
     try {
@@ -346,57 +365,6 @@ const ProfilePage = () => {
 
         {/* Right Column - Form & Certificate */}
         <div className="lg:col-span-2 space-y-10">
-          {/* Certificate Status Section */}
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-            
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-              <div className="flex items-center gap-6">
-                <div className={cn(
-                  "w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg transition-transform duration-500 group-hover:scale-110",
-                  user?.profile?.hasPaidCertificate ? "bg-emerald-50 text-emerald-600 shadow-emerald-500/10" : "bg-indigo-50 text-indigo-600 shadow-indigo-500/10"
-                )}>
-                  <Award size={32} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-black font-heading text-slate-900 tracking-tight">
-                    Program Certificate
-                  </h3>
-                  <p className="text-sm text-slate-500 font-medium mt-1">
-                    {user?.profile?.hasPaidCertificate 
-                      ? "Official certification issued and verified." 
-                      : "Official recognition of your program completion."}
-                  </p>
-                </div>
-              </div>
-
-              {user?.profile?.hasPaidCertificate ? (
-                <Button
-                  className="w-full md:w-auto px-8 h-12 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-600/10 bg-emerald-600 hover:bg-emerald-500"
-                  leftIcon={<Download size={18} />}
-                  onClick={() => toast.success("Certificate download starting...")}
-                >
-                  Download PDF
-                </Button>
-              ) : (
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-                   <div className="text-center md:text-right hidden sm:block">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fee:</p>
-                    <p className="text-lg font-black text-indigo-600 tracking-tight">{paymentConfig?.displayPrice || "..."}</p>
-                  </div>
-                  <Button
-                    className="w-full md:w-auto px-8 h-12 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-600/10"
-                    leftIcon={<Zap size={18} />}
-                    onClick={handleClaimCertificate}
-                    isLoading={paymentLoading}
-                    disabled={!paymentConfig}
-                  >
-                    Claim Now
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
 
           <form
             onSubmit={handleSubmit}

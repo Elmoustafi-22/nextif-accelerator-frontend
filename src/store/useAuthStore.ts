@@ -19,6 +19,9 @@ interface User {
     twitter?: string;
     linkedin?: string;
     facebook?: string;
+    hasPaidCertificate?: boolean;
+    certificatePaymentDate?: string | Date;
+    certificateUrl?: string;
   };
 }
 

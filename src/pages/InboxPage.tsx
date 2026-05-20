@@ -168,7 +168,7 @@ const InboxPage = () => {
                     </div>
                     <p
                       className={cn(
-                        "text-lg leading-relaxed max-w-3xl",
+                        "text-lg leading-relaxed max-w-3xl whitespace-pre-wrap",
                         !item.read
                           ? "text-slate-600 font-bold"
                           : "text-slate-400 font-medium"

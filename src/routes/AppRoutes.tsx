@@ -15,6 +15,8 @@ import ReportsPage from "../pages/ReportsPage";
 import ProfilePage from "../pages/ProfilePage";
 import EventsPage from "../pages/EventsPage";
 import RecordingsPage from "../pages/RecordingsPage";
+import PaymentsPage from "../pages/PaymentsPage";
+import CertificatePage from "../pages/CertificatePage";
 import Layout from "../components/Layout";
 
 // Placeholder components
@@ -66,6 +68,8 @@ const AppRoutes = () => {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/recordings" element={<RecordingsPage />} />
+          <Route path="/payments" element={<PaymentsPage />} />
+          <Route path="/certificate" element={<CertificatePage />} />
           {/* Future Ambassador routes: /tasks */}
         </Route>
       </Route>

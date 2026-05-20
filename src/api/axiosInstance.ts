@@ -27,6 +27,12 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.error(`[API Error] ${error.config?.method?.toUpperCase()} ${error.config?.url}:`, {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+
     if (error.response?.status === 401 && window.location.pathname !== "/login") {
       // Handle unauthorized error (e.g., redirect to login or refresh token)
       localStorage.removeItem("token");

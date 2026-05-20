@@ -15,7 +15,6 @@ import { useAuthStore } from "../store/useAuthStore";
 import axiosInstance from "../api/axiosInstance";
 import { cn } from "../utils/cn";
 import { generateGoogleCalendarLink } from "../utils/calendar";
-import { toast } from "react-hot-toast";
 
 const StatCard = ({ title, value, icon: Icon, color, trend }: any) => (
   <motion.div
@@ -59,24 +58,27 @@ const FellowsDashboard = () => {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [paymentConfig, setPaymentConfig] = useState<any>(null);
-  const [paymentLoading, setPaymentLoading] = useState(false);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [tasksRes, statsRes, notesRes, eventsRes, paymentRes] = await Promise.all([
+        const [tasksRes, statsRes, notesRes, eventsRes, paymentRes, profileRes] = await Promise.all([
           axiosInstance.get("/tasks/my/all"),
           axiosInstance.get("/ambassador/dashboard/stats"),
           axiosInstance.get("/notifications"),
           axiosInstance.get("/events?status=UPCOMING"),
           axiosInstance.get("/payments/config").catch(() => ({ data: null })),
+          axiosInstance.get("/ambassador/me").catch(() => null),
         ]);
         setTasks(tasksRes.data);
         setStats(statsRes.data);
         setNotifications(notesRes.data.slice(0, 5));
         setUpcomingEvents(eventsRes.data.slice(0, 2)); // Show top 2 upcoming
         setPaymentConfig(paymentRes?.data);
+        
+        if (profileRes?.data) {
+          useAuthStore.getState().updateUser(profileRes.data.data || profileRes.data);
+        }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       } finally {
@@ -85,21 +87,6 @@ const FellowsDashboard = () => {
     };
     fetchData();
   }, []);
-
-  const handleClaimCertificate = async () => {
-    try {
-      setPaymentLoading(true);
-      const response = await axiosInstance.post("/payments/initialize");
-      if (response.data.checkout_url) {
-        window.location.href = response.data.checkout_url;
-      }
-    } catch (error) {
-      console.error("Payment error:", error);
-      toast.error("Failed to initialize payment process");
-    } finally {
-      setPaymentLoading(false);
-    }
-  };
 
   const isJoinable = (eventDate: string) => {
     const now = new Date();
@@ -175,10 +162,10 @@ const FellowsDashboard = () => {
                 <span className="text-[10px] font-black uppercase tracking-widest">Program Milestone</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-black font-heading tracking-tight">
-                Claim Your Certificate
+                Certificate Fee
               </h2>
               <p className="text-indigo-100/80 font-medium max-w-xl text-sm md:text-base leading-relaxed">
-                You've shown incredible dedication. Formalize your achievement with the official NextIF Accelerator Certificate of Completion.
+                Secure your certificate for the incredible work and dedication involved in this project.
               </p>
             </div>
             
@@ -194,22 +181,12 @@ const FellowsDashboard = () => {
                   </h4>
                 </div>
               </div>
-              <button
-                onClick={handleClaimCertificate}
-                disabled={paymentLoading || !paymentConfig}
-                className="w-full py-5 bg-white text-indigo-600 hover:bg-indigo-50 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              <Link
+                to="/certificate"
+                className="w-full py-5 bg-white text-indigo-600 hover:bg-indigo-50 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
               >
-                {paymentLoading ? (
-                  <>
-                    <Clock className="animate-spin" size={18} /> Processing...
-                  </>
-                ) : (
-                  <>Secure Checkout</>
-                )}
-              </button>
-              <p className="mt-4 text-[9px] text-indigo-200 font-bold uppercase tracking-widest opacity-60">
-                Powered by Paystack
-              </p>
+                Proceed to Checkout
+              </Link>
             </div>
           </div>
         </motion.div>
