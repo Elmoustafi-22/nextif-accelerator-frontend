@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { CreditCard, Download, Loader2, ArrowRight } from "lucide-react";
-import { useAuthStore } from "../store/useAuthStore";
 import axiosInstance from "../api/axiosInstance";
 import Button from "../components/Button";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "../store/useToastStore";
 
 const PaymentsPage = () => {
-  const { user } = useAuthStore();
   const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();

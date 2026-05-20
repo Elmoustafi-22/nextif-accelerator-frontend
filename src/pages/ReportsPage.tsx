@@ -15,8 +15,6 @@ import axiosInstance from "../api/axiosInstance";
 import { cn } from "../utils/cn";
 import Button from "../components/Button";
 import { motion } from "framer-motion";
-import { useSearchParams } from "react-router-dom";
-import { toast } from "../store/useToastStore";
 
 const ReportsPage = () => {
   const [stats, setStats] = useState<any>(null);

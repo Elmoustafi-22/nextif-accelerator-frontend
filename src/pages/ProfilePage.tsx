@@ -16,18 +16,13 @@ import {
   Twitter,
   Linkedin,
   Facebook,
-  Award,
-  Download,
-  Zap,
 } from "lucide-react";
 import { useRef, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import axiosInstance from "../api/axiosInstance";
-import { cn } from "../utils/cn";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "../store/useToastStore";
 
 const ProfilePage = () => {
   const { user, updateUser } = useAuthStore();
@@ -40,55 +35,6 @@ const ProfilePage = () => {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState(false);
-  const [paymentLoading, setPaymentLoading] = useState(false);
-  const [paymentConfig, setPaymentConfig] = useState<any>(null);
-  const [myPayments, setMyPayments] = useState<any[]>([]);
-
-  useEffect(() => {
-    const fetchPaymentConfig = async () => {
-      try {
-        const res = await axiosInstance.get("/payments/config");
-        setPaymentConfig(res.data);
-      } catch (err) {
-        console.error("Failed to fetch payment config:", err);
-      }
-    };
-    if (!user?.profile?.hasPaidCertificate) {
-      fetchPaymentConfig();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    const fetchMyPayments = async () => {
-      try {
-        const res = await axiosInstance.get("/payments/my");
-        setMyPayments(res.data);
-      } catch (err) {
-        console.error("Failed to fetch my payment records:", err);
-      }
-    };
-    if (user?.profile?.hasPaidCertificate) {
-      fetchMyPayments();
-    }
-  }, [user]);
-
-  const successfulPayment = myPayments.find((p) => p.status === "SUCCESS");
-  const receiptUrl = successfulPayment?.receiptUrl;
-
-  const handleClaimCertificate = async () => {
-    try {
-      setPaymentLoading(true);
-      const response = await axiosInstance.post("/payments/initialize");
-      if (response.data.checkout_url) {
-        window.location.href = response.data.checkout_url;
-      }
-    } catch (error) {
-      console.error("Payment error:", error);
-      toast.error("Failed to initialize payment process");
-    } finally {
-      setPaymentLoading(false);
-    }
-  };
 
   const [formData, setFormData] = useState({
     firstName: user?.firstName || "",
