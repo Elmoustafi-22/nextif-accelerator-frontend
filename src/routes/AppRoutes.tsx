@@ -17,6 +17,7 @@ import EventsPage from "../pages/EventsPage";
 import RecordingsPage from "../pages/RecordingsPage";
 import PaymentsPage from "../pages/PaymentsPage";
 import CertificatePage from "../pages/CertificatePage";
+import CapstonePage from "../pages/CapstonePage";
 import Layout from "../components/Layout";
 
 // Placeholder components
@@ -70,6 +71,7 @@ const AppRoutes = () => {
           <Route path="/recordings" element={<RecordingsPage />} />
           <Route path="/payments" element={<PaymentsPage />} />
           <Route path="/certificate" element={<CertificatePage />} />
+          <Route path="/capstone" element={<CapstonePage />} />
           {/* Future Ambassador routes: /tasks */}
         </Route>
       </Route>

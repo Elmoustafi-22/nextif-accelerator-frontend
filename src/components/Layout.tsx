@@ -14,6 +14,7 @@ import {
   PlayCircle,
   CreditCard,
   Award,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "../utils/cn";
 import { useAuthStore } from "../store/useAuthStore";
@@ -85,6 +86,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const links = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "My Tasks", href: "/tasks", icon: CheckCircle2 },
+    { name: "Capstone", href: "/capstone", icon: BookOpen },
     { name: "Support & Help", href: "/complaints", icon: PlusCircle },
     { name: "Inbox", href: "/inbox", icon: Bell },
     { name: "Reports", href: "/reports", icon: BarChart3 },
