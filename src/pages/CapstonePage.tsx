@@ -3,6 +3,7 @@ import axiosInstance from "../api/axiosInstance";
 import { useAuthStore } from "../store/useAuthStore";
 import { useToastStore } from "../store/useToastStore";
 import { Loader2, Users, UserPlus, Shield, Rocket, CheckCircle2, FileUp, ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface Team {
   _id: string;
@@ -41,12 +42,34 @@ const CapstonePage = () => {
     problemStatement: "",
   });
   const [proposalFile, setProposalFile] = useState<File | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [pitchDeckFile, setPitchDeckFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Invite UI state
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
+  const [inviteMessage, setInviteMessage] = useState<string | null>(null);
+
+  const [invites, setInvites] = useState<any[]>([]);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+
   useEffect(() => {
     fetchData();
+    fetchInvites();
   }, []);
+
+  const fetchInvites = async () => {
+    try {
+      const res = await axiosInstance.get("/capstone/invites");
+      setInvites(res.data.invites || []);
+    } catch (err) {
+      console.error("Error fetching invites:", err);
+    }
+  };
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -106,6 +129,95 @@ const CapstonePage = () => {
     }
   };
 
+  const acceptInvite = async (inviteId: string) => {
+    try {
+      await axiosInstance.post(`/capstone/invites/${inviteId}/accept`);
+      addToast("Invite accepted!", "success");
+      fetchData();
+      fetchInvites();
+    } catch (err: any) {
+      addToast(err.response?.data?.message || "Failed to accept invite", "error");
+    }
+  };
+
+  const rejectInvite = async (inviteId: string) => {
+    try {
+      await axiosInstance.post(`/capstone/invites/${inviteId}/reject`);
+      addToast("Invite declined", "success");
+      fetchInvites();
+    } catch (err: any) {
+      addToast("Failed to reject invite", "error");
+    }
+  };
+
+  const handleLeaveTeam = () => {
+    setShowLeaveModal(true);
+  };
+
+  const confirmLeaveTeamAction = async () => {
+    try {
+      await axiosInstance.post("/capstone/teams/leave");
+      addToast("You have left the team", "success");
+      setMyTeam(null);
+      setShowLeaveModal(false);
+      fetchData();
+    } catch (error: any) {
+      addToast(error.response?.data?.message || "Failed to leave team", "error");
+    }
+  };
+
+  // Search ambassadors for invite (simple debounce)
+  let searchTimer: NodeJS.Timeout | null = null;
+  const searchAmbassadors = (q: string) => {
+    setSearchQuery(q);
+    if (searchTimer) clearTimeout(searchTimer);
+    if (!q || q.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    setIsSearching(true);
+    searchTimer = setTimeout(async () => {
+      try {
+        const res = await axiosInstance.get(`/capstone/ambassadors/search?q=${encodeURIComponent(q)}`);
+        setSearchResults(res.data.results || []);
+      } catch (err) {
+        console.error(err);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 350);
+  };
+
+  const handleInvite = async (payload: { userId?: string; email?: string }) => {
+    if (!myTeam) return addToast("No team selected", "error");
+    setIsInviting(true);
+    setInviteMessage(null);
+    try {
+      await axiosInstance.post(`/capstone/teams/${myTeam._id}/invite`, payload);
+      setInviteMessage("Invite sent successfully");
+      setSearchResults([]);
+      setSearchQuery("");
+      // keep modal open to show message
+      addToast("Invite sent", "success");
+    } catch (err: any) {
+      console.error(err);
+      addToast(err.response?.data?.message || "Failed to send invite", "error");
+    } finally {
+      setIsInviting(false);
+    }
+  };
+
+  const InviteByEmailForm: React.FC<{ onInvite: (email: string) => void; loading: boolean }> = ({ onInvite, loading }) => {
+    const [email, setEmail] = useState("");
+    return (
+      <div className="flex items-center gap-2">
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="user@example.com" className="w-full p-2 border rounded-lg" />
+        <button disabled={loading || !email} onClick={() => { onInvite(email); setEmail(""); }} className="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm">Send</button>
+      </div>
+    );
+  };
+
   const handleSubmitProposal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!proposalFile) return addToast("Please upload your proposal document", "error");
@@ -115,6 +227,7 @@ const CapstonePage = () => {
     formData.append("projectTitle", proposalForm.projectTitle);
     formData.append("problemStatement", proposalForm.problemStatement);
     formData.append("file", proposalFile);
+    if (logoFile) formData.append("logo", logoFile);
 
     try {
       await axiosInstance.post("/capstone/submissions/proposal", formData, {
@@ -238,14 +351,37 @@ const CapstonePage = () => {
               </div>
             ) : myTeam ? (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-gray-900">My Team: {myTeam.name}</h2>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${myTeam.segment === "SOLO" ? "bg-indigo-100 text-indigo-700" :
-                    myTeam.segment === "SEEKING_COFOUNDERS" ? "bg-green-100 text-green-700" :
-                      "bg-amber-100 text-amber-700"
-                    }`}>
-                    {myTeam.segment.replace("_", " ")}
-                  </span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">My Team: {myTeam.name}</h2>
+                    <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-bold opacity-70">Team Management Dashboard</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {isFounder && (
+                      <button 
+                        onClick={() => setShowInviteModal(true)} 
+                        className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                      >
+                        <UserPlus size={18} />
+                        Invite Member
+                      </button>
+                    )}
+                    {!isFounder && (
+                      <button 
+                        onClick={handleLeaveTeam} 
+                        className="px-6 py-2.5 bg-white text-red-600 border-2 border-red-100 hover:border-red-600 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-red-50 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                      >
+                        <Rocket size={18} className="rotate-180" />
+                        Leave Team
+                      </button>
+                    )}
+                    <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-sm ${myTeam.segment === "SOLO" ? "bg-indigo-100 text-indigo-700 border border-indigo-200" :
+                      myTeam.segment === "SEEKING_COFOUNDERS" ? "bg-green-100 text-green-700 border border-green-200" :
+                        "bg-amber-100 text-amber-700 border border-amber-200"
+                      }`}>
+                      {myTeam.segment.replace("_", " ")}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-6">
@@ -308,6 +444,44 @@ const CapstonePage = () => {
               </div>
             ) : (
               <div className="space-y-12">
+                {/* Pending Team Invites */}
+                {invites.length > 0 && (
+                  <div className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 shadow-sm animate-in slide-in-from-top duration-500">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-2 bg-indigo-600 rounded-lg text-white">
+                        <Users size={20} />
+                      </div>
+                      <h3 className="text-xl font-bold text-indigo-900">Pending Team Invitations</h3>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      {invites.map(inv => (
+                        <div key={inv._id} className="bg-white p-5 rounded-xl border border-indigo-100 shadow-sm flex flex-col justify-between">
+                          <div>
+                            <h4 className="font-bold text-gray-900 text-lg mb-1">{inv.team.name}</h4>
+                            <p className="text-xs text-gray-500 mb-4 flex items-center gap-1">
+                              <Shield size={12} /> Invited by {inv.inviter.firstName} {inv.inviter.lastName}
+                            </p>
+                          </div>
+                          <div className="flex gap-2 mt-2">
+                            <button 
+                              onClick={() => acceptInvite(inv._id)} 
+                              className="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm"
+                            >
+                              Accept
+                            </button>
+                            <button 
+                              onClick={() => rejectInvite(inv._id)} 
+                              className="flex-1 py-2 bg-white text-gray-600 border border-gray-200 rounded-lg text-sm font-bold hover:bg-gray-50 transition-colors"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="text-center max-w-2xl mx-auto">
                   <h2 className="text-3xl font-bold text-gray-900">Formation Stage</h2>
                   <p className="text-gray-600 mt-2">You are not yet part of a capstone team. You can either create your own team or join an existing one.</p>
@@ -471,17 +645,39 @@ const CapstonePage = () => {
                             onChange={e => setProposalForm({ ...proposalForm, problemStatement: e.target.value })}
                           />
                         </div>
-                        <div className="p-6 border-2 border-dashed border-indigo-100 rounded-xl bg-indigo-50/30 flex flex-col items-center">
-                          <FileUp size={32} className="text-indigo-400 mb-2" />
-                          <p className="text-sm font-medium text-indigo-900">Upload Full Proposal Document</p>
-                          <p className="text-xs text-slate-500 mb-4">Max 2-3 pages. PDF or Docx preferred.</p>
-                          <input
-                            type="file"
-                            accept=".pdf,.doc,.docx"
-                            required
-                            onChange={e => setProposalFile(e.target.files ? e.target.files[0] : null)}
-                            className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                          />
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="p-6 border-2 border-dashed border-indigo-100 rounded-xl bg-indigo-50/30 flex flex-col items-center">
+                            <FileUp size={32} className="text-indigo-400 mb-2" />
+                            <p className="text-sm font-medium text-indigo-900">Upload Project Logo (optional)</p>
+                            <p className="text-xs text-slate-500 mb-4">PNG or JPG. Recommended size 200x200.</p>
+                            <input
+                              type="file"
+                              accept=".png,.jpg,.jpeg"
+                              onChange={e => {
+                                const file = e.target.files ? e.target.files[0] : null;
+                                if (file && file.size > 5 * 1024 * 1024) {
+                                  addToast("Logo must be 5MB or less", "error");
+                                  return setLogoFile(null);
+                                }
+                                setLogoFile(file);
+                              }}
+                              className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                            />
+                          </div>
+
+                          <div className="p-6 border-2 border-dashed border-indigo-100 rounded-xl bg-indigo-50/30 flex flex-col items-center">
+                            <FileUp size={32} className="text-indigo-400 mb-2" />
+                            <p className="text-sm font-medium text-indigo-900">Upload Full Proposal Document</p>
+                            <p className="text-xs text-slate-500 mb-4">Max 2-3 pages. PDF or Docx preferred.</p>
+                            <input
+                              type="file"
+                              accept=".pdf,.doc,.docx"
+                              required
+                              onChange={e => setProposalFile(e.target.files ? e.target.files[0] : null)}
+                              className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                            />
+                          </div>
                         </div>
                       </div>
                       <button
@@ -563,9 +759,13 @@ const CapstonePage = () => {
                   <div key={submission._id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg transition-shadow">
                     <div className="p-6 bg-indigo-50/50 border-b border-gray-100">
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-indigo-100 shadow-sm">
-                          <Rocket className="text-indigo-600" size={20} />
-                        </div>
+                        {submission.content.logoUrl ? (
+                          <img src={submission.content.logoUrl} alt={submission.content.projectTitle} className="w-10 h-10 rounded-full object-cover border border-indigo-100 shadow-sm" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-indigo-100 shadow-sm">
+                            <Rocket className="text-indigo-600" size={20} />
+                          </div>
+                        )}
                         <h3 className="font-bold text-gray-900 line-clamp-1">{submission.content.projectTitle}</h3>
                       </div>
                       <p className="text-sm text-gray-600 line-clamp-3 min-h-[60px]">
@@ -609,6 +809,90 @@ const CapstonePage = () => {
         )}
       </div>
       {/* Team Details Modal */}
+      {/* Invite Member Modal */}
+      {showInviteModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-bold">Invite Member</h3>
+              <button onClick={() => { setShowInviteModal(false); setSearchResults([]); setSearchQuery(""); setInviteMessage(null); }} className="text-gray-400 hover:text-gray-600">Close</button>
+            </div>
+
+            <div>
+              <input
+                value={searchQuery}
+                onChange={e => searchAmbassadors(e.target.value)}
+                placeholder="Search by name or email (min 2 chars)"
+                className="w-full p-2 border rounded-lg"
+              />
+            </div>
+
+            <div className="max-h-64 overflow-auto">
+              {isSearching ? (
+                <p className="text-sm text-gray-500">Searching...</p>
+              ) : searchResults.length > 0 ? (
+                searchResults.map((r: any) => (
+                  <div key={r._id} className="flex items-center justify-between py-2 border-b">
+                    <div>
+                      <p className="font-medium">{r.firstName} {r.lastName}</p>
+                      <p className="text-sm text-gray-500">{r.email}</p>
+                    </div>
+                    <div>
+                      <button onClick={() => handleInvite({ userId: r._id })} disabled={isInviting} className="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm">Invite</button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-sm text-gray-500">No results</div>
+              )}
+
+              {inviteMessage && <div className="mt-3 text-sm text-green-600">{inviteMessage}</div>}
+            </div>
+
+            <div className="pt-2">
+              <p className="text-sm text-gray-500 mb-2">Or invite by email</p>
+              <InviteByEmailForm onInvite={(email: string) => handleInvite({ email })} loading={isInviting} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Leave Team Confirmation Modal */}
+      {showLeaveModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-8 md:p-10 text-center space-y-8"
+          >
+            <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center mx-auto shadow-inner">
+               <Rocket size={40} className="text-red-500 rotate-180" />
+            </div>
+            
+            <div className="space-y-3">
+              <h3 className="text-2xl font-black font-heading text-slate-900 tracking-tight">Confirm Departure?</h3>
+              <p className="text-slate-500 font-medium text-sm leading-relaxed">
+                You are about to exit <span className="text-slate-900 font-bold">{myTeam?.name}</span>. This action is final and you will need a new invitation to re-join.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <button 
+                onClick={confirmLeaveTeamAction} 
+                className="w-full py-4 bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-red-600/20 hover:bg-red-700 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+              >
+                Confirm Departure
+              </button>
+              <button 
+                onClick={() => setShowLeaveModal(false)} 
+                className="w-full py-4 bg-slate-50 text-slate-400 hover:text-slate-600 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all cursor-pointer"
+              >
+                Stay with Team
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
       {selectedTeam && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-8 space-y-6">
@@ -645,15 +929,17 @@ const CapstonePage = () => {
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => {
-                handleJoinTeam(selectedTeam._id);
-                setSelectedTeam(null);
-              }}
-              className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition-colors"
-            >
-              Join This Team
-            </button>
+            {!myTeam && (
+              <button
+                onClick={() => {
+                  handleJoinTeam(selectedTeam._id);
+                  setSelectedTeam(null);
+                }}
+                className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition-colors"
+              >
+                Join This Team
+              </button>
+            )}
           </div>
         </div>
       )}

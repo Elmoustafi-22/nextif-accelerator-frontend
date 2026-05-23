@@ -6,6 +6,7 @@ export interface Notification {
   type: "MESSAGE" | "ANNOUNCEMENT";
   title: string;
   body: string;
+  link?: string;
   referenceId?: string;
   read: boolean;
   createdAt: string;

@@ -90,13 +90,25 @@ const NotificationDropdown = () => {
                     )}
                     onClick={() => {
                       if (!notification.read) markAsRead(notification._id);
-                      if (
-                        notification.referenceId &&
-                        notification.type === "MESSAGE"
-                      ) {
+                      
+                      // PRIORITIZE EXPLICIT LINKS (e.g. for team invites)
+                      if (notification.link) {
+                        console.log("Navigating to notification link:", notification.link);
+                        navigate(notification.link);
+                        closeDropdown();
+                        return;
+                      } 
+                      
+                      // FALLBACK TO TASK VIEW FOR STANDARD MESSAGES
+                      if (notification.referenceId && notification.type === "MESSAGE") {
+                        console.log("Navigating to task reference:", notification.referenceId);
                         navigate(`/tasks/${notification.referenceId}`);
                         closeDropdown();
+                        return;
                       }
+                      
+                      // DEFAULT: Just close if no destination
+                      closeDropdown();
                     }}
                   >
                     <div

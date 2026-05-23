@@ -18,6 +18,7 @@ import RecordingsPage from "../pages/RecordingsPage";
 import PaymentsPage from "../pages/PaymentsPage";
 import CertificatePage from "../pages/CertificatePage";
 import CapstonePage from "../pages/CapstonePage";
+import InviteAcceptPage from "../pages/InviteAcceptPage";
 import Layout from "../components/Layout";
 
 // Placeholder components
@@ -72,6 +73,7 @@ const AppRoutes = () => {
           <Route path="/payments" element={<PaymentsPage />} />
           <Route path="/certificate" element={<CertificatePage />} />
           <Route path="/capstone" element={<CapstonePage />} />
+          <Route path="/capstone/invites/accept" element={<InviteAcceptPage />} />
           {/* Future Ambassador routes: /tasks */}
         </Route>
       </Route>
