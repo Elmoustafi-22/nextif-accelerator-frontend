@@ -45,6 +45,34 @@ const CapstonePage = () => {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [pitchDeckFile, setPitchDeckFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditingProposal, setIsEditingProposal] = useState(false);
+  const [isEditingPitchDeck, setIsEditingPitchDeck] = useState(false);
+  const [proposalDeadline, setProposalDeadline] = useState<Date>(new Date("2026-06-03T23:59:59.999Z"));
+  const [pitchDeckDeadline, setPitchDeckDeadline] = useState<Date>(new Date("2026-06-11T23:59:59.999Z"));
+
+  const fetchDeadlines = async () => {
+    try {
+      const res = await axiosInstance.get("/capstone/deadlines");
+      const list = res.data.deadlines || [];
+      const proposal = list.find((d: any) => d.stage === "PROPOSAL");
+      const pitch = list.find((d: any) => d.stage === "PITCH_DECK");
+      if (proposal) setProposalDeadline(new Date(proposal.deadline));
+      if (pitch) setPitchDeckDeadline(new Date(pitch.deadline));
+    } catch (err) {
+      console.error("Error fetching deadlines:", err);
+    }
+  };
+
+  const handleEditProposalClick = () => {
+    const existing = submissions.find(s => s.stage === "PROPOSAL");
+    if (existing) {
+      setProposalForm({
+        projectTitle: existing.content.projectTitle || "",
+        problemStatement: existing.content.problemStatement || "",
+      });
+    }
+    setIsEditingProposal(true);
+  };
 
   // Invite UI state
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -77,7 +105,8 @@ const CapstonePage = () => {
       const [myTeamRes, allTeamsRes, shortlistedRes] = await Promise.allSettled([
         axiosInstance.get("/capstone/teams/me"),
         axiosInstance.get("/capstone/teams"),
-        axiosInstance.get("/capstone/submissions/shortlisted")
+        axiosInstance.get("/capstone/submissions/shortlisted"),
+        fetchDeadlines()
       ]);
 
       let currentTeam = null;
@@ -220,23 +249,24 @@ const CapstonePage = () => {
 
   const handleSubmitProposal = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!proposalFile) return addToast("Please upload your proposal document", "error");
+    if (!isEditingProposal && !proposalFile) return addToast("Please upload your proposal document", "error");
 
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append("projectTitle", proposalForm.projectTitle);
     formData.append("problemStatement", proposalForm.problemStatement);
-    formData.append("file", proposalFile);
+    if (proposalFile) formData.append("file", proposalFile);
     if (logoFile) formData.append("logo", logoFile);
 
     try {
       await axiosInstance.post("/capstone/submissions/proposal", formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
-      addToast("Proposal submitted successfully!", "success");
+      addToast(isEditingProposal ? "Proposal updated successfully!" : "Proposal submitted successfully!", "success");
+      setIsEditingProposal(false);
       fetchData();
-    } catch (error) {
-      addToast("Failed to submit proposal", "error");
+    } catch (error: any) {
+      addToast(error.response?.data?.message || "Failed to submit proposal", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -244,20 +274,21 @@ const CapstonePage = () => {
 
   const handleSubmitPitchDeck = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!pitchDeckFile) return addToast("Please upload your pitch deck", "error");
+    if (!isEditingPitchDeck && !pitchDeckFile) return addToast("Please upload your pitch deck", "error");
 
     setIsSubmitting(true);
     const formData = new FormData();
-    formData.append("file", pitchDeckFile);
+    if (pitchDeckFile) formData.append("file", pitchDeckFile);
 
     try {
       await axiosInstance.post("/capstone/submissions/pitch-deck", formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
-      addToast("Pitch deck submitted successfully!", "success");
+      addToast(isEditingPitchDeck ? "Pitch deck updated successfully!" : "Pitch deck submitted successfully!", "success");
+      setIsEditingPitchDeck(false);
       fetchData();
-    } catch (error) {
-      addToast("Failed to submit pitch deck", "error");
+    } catch (error: any) {
+      addToast(error.response?.data?.message || "Failed to submit pitch deck", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -266,6 +297,9 @@ const CapstonePage = () => {
   const hasSubmittedProposal = submissions.some(s => s.stage === "PROPOSAL");
   const hasSubmittedPitchDeck = submissions.some(s => s.stage === "PITCH_DECK");
   const isFounder = myTeam?.founder._id === user?.id;
+
+  const canEditProposal = new Date() <= proposalDeadline;
+  const canEditPitchDeck = new Date() <= pitchDeckDeadline;
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-12">
@@ -595,7 +629,7 @@ const CapstonePage = () => {
                   <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                     <div>
                       <h3 className="text-xl font-bold text-gray-900">Stage I: Proposal</h3>
-                      <p className="text-xs text-slate-500">Metadata + Full Document (PDF/Docx)</p>
+                      <p className="text-xs text-slate-500">Metadata + Full Document (PDF/Docx) | Deadline: {proposalDeadline.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
                     </div>
                     {hasSubmittedProposal ? (
                       <span className="flex items-center gap-1 text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full text-sm">
@@ -606,10 +640,10 @@ const CapstonePage = () => {
                     )}
                   </div>
 
-                  {hasSubmittedProposal ? (
-                    <div className="p-8 bg-gray-50 text-center">
+                  {hasSubmittedProposal && !isEditingProposal ? (
+                    <div className="p-8 bg-gray-50 text-center space-y-4">
                       <p className="text-gray-600">Proposal submitted successfully.</p>
-                      <div className="mt-4 flex justify-center gap-4">
+                      <div className="flex justify-center gap-4">
                         <div className="p-3 bg-white rounded-lg border border-gray-200 text-left">
                           <p className="text-xs font-bold text-slate-400 uppercase">Project</p>
                           <p className="font-bold text-slate-900">{submissions.find(s => s.stage === "PROPOSAL")?.content.projectTitle}</p>
@@ -622,6 +656,16 @@ const CapstonePage = () => {
                           <ExternalLink size={18} /> View Document
                         </a>
                       </div>
+                      {isFounder && canEditProposal && (
+                        <div className="pt-2">
+                          <button
+                            onClick={handleEditProposalClick}
+                            className="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors"
+                          >
+                            Edit Submission
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ) : isFounder ? (
                     <form onSubmit={handleSubmitProposal} className="p-6 space-y-6">
@@ -669,25 +713,36 @@ const CapstonePage = () => {
                           <div className="p-6 border-2 border-dashed border-indigo-100 rounded-xl bg-indigo-50/30 flex flex-col items-center">
                             <FileUp size={32} className="text-indigo-400 mb-2" />
                             <p className="text-sm font-medium text-indigo-900">Upload Full Proposal Document</p>
-                            <p className="text-xs text-slate-500 mb-4">Max 2-3 pages. PDF or Docx preferred.</p>
+                            <p className="text-xs text-slate-500 mb-4">{isEditingProposal ? "Leave empty to keep existing document. PDF or Docx preferred." : "Max 2-3 pages. PDF or Docx preferred."}</p>
                             <input
                               type="file"
                               accept=".pdf,.doc,.docx"
-                              required
+                              required={!isEditingProposal}
                               onChange={e => setProposalFile(e.target.files ? e.target.files[0] : null)}
                               className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                             />
                           </div>
                         </div>
                       </div>
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 disabled:bg-indigo-300 flex justify-center items-center gap-2"
-                      >
-                        {isSubmitting && <Loader2 className="animate-spin" size={18} />}
-                        Submit Proposal
-                      </button>
+                      <div className="flex gap-4">
+                        <button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 disabled:bg-indigo-300 flex justify-center items-center gap-2"
+                        >
+                          {isSubmitting && <Loader2 className="animate-spin" size={18} />}
+                          {isEditingProposal ? "Update Proposal" : "Submit Proposal"}
+                        </button>
+                        {isEditingProposal && (
+                          <button
+                            type="button"
+                            onClick={() => setIsEditingProposal(false)}
+                            className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-bold hover:bg-gray-200 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
                     </form>
                   ) : (
                     <div className="p-6 text-center text-gray-500 italic">Only the founder can submit proposals.</div>
@@ -696,7 +751,10 @@ const CapstonePage = () => {
 
                 <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                   <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-                    <h3 className="text-xl font-bold text-gray-900">Stage II: Pitch Deck</h3>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Stage II: Pitch Deck</h3>
+                      <p className="text-xs text-slate-500">5-7 Slides (PDF/PPTX) | Deadline: {pitchDeckDeadline.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                    </div>
                     {hasSubmittedPitchDeck ? (
                       <span className="flex items-center gap-1 text-green-600 font-bold bg-green-50 px-3 py-1 rounded-full text-sm">
                         <CheckCircle2 size={16} /> Submitted
@@ -706,34 +764,55 @@ const CapstonePage = () => {
                     )}
                   </div>
 
-                  {hasSubmittedPitchDeck ? (
-                    <div className="p-8 bg-gray-50 text-center">
+                  {hasSubmittedPitchDeck && !isEditingPitchDeck ? (
+                    <div className="p-8 bg-gray-50 text-center space-y-4">
                       <a href={submissions.find(s => s.stage === "PITCH_DECK")?.content.pitchDeckUrl} target="_blank" rel="noreferrer" className="text-indigo-600 font-bold hover:underline flex items-center justify-center gap-2">
                         <ExternalLink size={18} /> View Pitch Deck
                       </a>
+                      {isFounder && canEditPitchDeck && (
+                        <div className="pt-2">
+                          <button
+                            onClick={() => setIsEditingPitchDeck(true)}
+                            className="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors"
+                          >
+                            Edit Submission
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ) : isFounder ? (
                     <form onSubmit={handleSubmitPitchDeck} className="p-6 space-y-4">
                       <div className="p-6 border-2 border-dashed border-indigo-100 rounded-xl bg-indigo-50/30 flex flex-col items-center">
                         <FileUp size={32} className="text-indigo-400 mb-2" />
                         <p className="text-sm font-medium text-indigo-900">Upload Final Pitch Deck</p>
-                        <p className="text-xs text-slate-500 mb-4">5-7 slides. PDF or PPTX preferred.</p>
+                        <p className="text-xs text-slate-500 mb-4">{isEditingPitchDeck ? "Leave empty to keep existing pitch deck. 5-7 slides. PDF or PPTX preferred." : "5-7 slides. PDF or PPTX preferred."}</p>
                         <input
                           type="file"
                           accept=".pdf,.ppt,.pptx"
-                          required
+                          required={!isEditingPitchDeck}
                           onChange={e => setPitchDeckFile(e.target.files ? e.target.files[0] : null)}
                           className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                         />
                       </div>
-                      <button
-                        type="submit"
-                        disabled={!hasSubmittedProposal || isSubmitting}
-                        className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold disabled:bg-gray-300 flex justify-center items-center gap-2"
-                      >
-                        {isSubmitting && <Loader2 className="animate-spin" size={18} />}
-                        Submit Pitch Deck
-                      </button>
+                      <div className="flex gap-4">
+                        <button
+                          type="submit"
+                          disabled={!hasSubmittedProposal || isSubmitting}
+                          className="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-bold disabled:bg-gray-300 flex justify-center items-center gap-2"
+                        >
+                          {isSubmitting && <Loader2 className="animate-spin" size={18} />}
+                          {isEditingPitchDeck ? "Update Pitch Deck" : "Submit Pitch Deck"}
+                        </button>
+                        {isEditingPitchDeck && (
+                          <button
+                            type="button"
+                            onClick={() => setIsEditingPitchDeck(false)}
+                            className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-bold hover:bg-gray-200 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
                     </form>
                   ) : (
                     <div className="p-6 text-center text-gray-500 italic">Only the founder can submit pitch decks.</div>
