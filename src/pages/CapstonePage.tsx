@@ -49,6 +49,7 @@ const CapstonePage = () => {
   const [isEditingPitchDeck, setIsEditingPitchDeck] = useState(false);
   const [proposalDeadline, setProposalDeadline] = useState<Date>(new Date("2026-06-03T23:59:59.999Z"));
   const [pitchDeckDeadline, setPitchDeckDeadline] = useState<Date>(new Date("2026-06-11T23:59:59.999Z"));
+  const [maxGroupMembers, setMaxGroupMembers] = useState(5);
 
   const fetchDeadlines = async () => {
     try {
@@ -60,6 +61,17 @@ const CapstonePage = () => {
       if (pitch) setPitchDeckDeadline(new Date(pitch.deadline));
     } catch (err) {
       console.error("Error fetching deadlines:", err);
+    }
+  };
+
+  const fetchSettings = async () => {
+    try {
+      const res = await axiosInstance.get("/settings");
+      if (res.data.capstoneGroupMaxMembers) {
+        setMaxGroupMembers(res.data.capstoneGroupMaxMembers);
+      }
+    } catch (err) {
+      console.error("Error fetching settings:", err);
     }
   };
 
@@ -106,7 +118,8 @@ const CapstonePage = () => {
         axiosInstance.get("/capstone/teams/me"),
         axiosInstance.get("/capstone/teams"),
         axiosInstance.get("/capstone/submissions/shortlisted"),
-        fetchDeadlines()
+        fetchDeadlines(),
+        fetchSettings()
       ]);
 
       let currentTeam = null;
@@ -354,7 +367,7 @@ const CapstonePage = () => {
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg border border-green-100">
                   <strong className="text-green-900">B. Founder Seeking Co-Founders (Team Formation from Idea Owner)</strong>
-                  <p className="text-sm text-gray-700 mt-1">For founders open to building a team (2-5 members). The founder invites interested participants to join as co-founders.</p>
+                  <p className="text-sm text-gray-700 mt-1">For founders open to building a team (up to {maxGroupMembers} members). The founder invites interested participants to join as co-founders.</p>
                 </div>
                 <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
                   <strong className="text-amber-900">C. Collaborative Interest Group (Shared Interest Participation)</strong>
@@ -440,7 +453,7 @@ const CapstonePage = () => {
                     <div className="bg-white p-6 rounded-xl border border-gray-200">
                       <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                         <Users size={20} className="text-indigo-600" />
-                        Team Members ({myTeam.members.length}/5)
+                        Team Members ({myTeam.members.length}/{maxGroupMembers})
                       </h3>
                       <div className="divide-y divide-gray-100">
                         {myTeam.members.map((member) => (
@@ -600,7 +613,7 @@ const CapstonePage = () => {
                           <h4 className="font-bold text-gray-900 text-lg mb-2">{team.name}</h4>
                           <p className="text-sm text-gray-600 line-clamp-2 mb-4">{team.ideaDescription}</p>
                           <div className="flex items-center justify-between mt-auto">
-                            <span className="text-xs text-gray-500">{team.members.length}/5 members</span>
+                            <span className="text-xs text-gray-500">{team.members.length}/{maxGroupMembers} members</span>
                             <span className="text-indigo-600 font-bold text-sm hover:underline">View Details</span>
                           </div>
                         </div>
