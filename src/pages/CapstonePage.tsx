@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import axiosInstance from "../api/axiosInstance";
 import { useAuthStore } from "../store/useAuthStore";
 import { useToastStore } from "../store/useToastStore";
-import { Loader2, Users, UserPlus, Shield, Rocket, CheckCircle2, FileUp, ExternalLink } from "lucide-react";
+import { Loader2, Users, UserPlus, Shield, Rocket, CheckCircle2, FileUp, ExternalLink, Trophy, Clock, Search } from "lucide-react";
 import { motion } from "framer-motion";
+import { cn } from "../utils/cn";
 
 interface Team {
   _id: string;
@@ -19,7 +20,10 @@ interface Team {
 const CapstonePage = () => {
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
-  const [activeTab, setActiveTab] = useState<"GUIDE" | "TEAM" | "SUBMISSIONS" | "SHORTLISTED">("GUIDE");
+  const [activeTab, setActiveTab] = useState<"GUIDE" | "TEAM" | "SUBMISSIONS" | "SHORTLISTED" | "RANKINGS">("GUIDE");
+  const [allSubmissions, setAllSubmissions] = useState<any[]>([]);
+  const [rankingsStage, setRankingsStage] = useState<"PROPOSAL" | "PITCH_DECK">("PROPOSAL");
+  const [rankingsSearchTerm, setRankingsSearchTerm] = useState("");
   const [myTeam, setMyTeam] = useState<Team | null>(null);
   const [availableTeams, setAvailableTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -114,10 +118,11 @@ const CapstonePage = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [myTeamRes, allTeamsRes, shortlistedRes] = await Promise.allSettled([
+      const [myTeamRes, allTeamsRes, shortlistedRes, allSubsRes] = await Promise.allSettled([
         axiosInstance.get("/capstone/teams/me"),
         axiosInstance.get("/capstone/teams"),
         axiosInstance.get("/capstone/submissions/shortlisted"),
+        axiosInstance.get("/capstone/submissions"),
         fetchDeadlines(),
         fetchSettings()
       ]);
@@ -138,9 +143,17 @@ const CapstonePage = () => {
         setShortlistedSubmissions(shortlistedRes.value.data.submissions);
       }
 
-      if (currentTeam) {
-        const subRes = await axiosInstance.get("/capstone/submissions");
-        setSubmissions(subRes.data.submissions.filter((s: any) => s.team._id === currentTeam._id));
+      if (allSubsRes.status === "fulfilled") {
+        const allSubs = allSubsRes.value.data.submissions || [];
+        setAllSubmissions(allSubs);
+        if (currentTeam) {
+          setSubmissions(allSubs.filter((s: any) => s.team._id === currentTeam._id));
+        } else {
+          setSubmissions([]);
+        }
+      } else {
+        setAllSubmissions([]);
+        setSubmissions([]);
       }
     } catch (error) {
       console.error("Error fetching capstone data:", error);
@@ -148,6 +161,74 @@ const CapstonePage = () => {
       setIsLoading(false);
     }
   };
+
+  const getTeamLogoUrl = (sub: any) => {
+    if (sub.content?.logoUrl) return sub.content.logoUrl;
+    const otherSub = allSubmissions.find(
+      (s: any) => s.team?._id === sub.team?._id && s.content?.logoUrl
+    );
+    return otherSub?.content?.logoUrl || null;
+  };
+
+  const formatLogoUrl = (url: string | null) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    if (url.startsWith("/")) return url;
+    return `/${url}`;
+  };
+
+  const getProjectTitle = (sub: any) => {
+    if (sub.content?.projectTitle) return sub.content.projectTitle;
+    const otherSub = allSubmissions.find(
+      (s: any) => s.team?._id === sub.team?._id && s.content?.projectTitle
+    );
+    return otherSub?.content?.projectTitle || sub.team?.name || "Untitled Project";
+  };
+
+  const getRankedProjects = () => {
+    const stageSubs = allSubmissions.filter((sub: any) => sub.stage === rankingsStage);
+
+    // Sort by total score descending, put ungraded ones at the end
+    const sorted = [...stageSubs].sort((a: any, b: any) => {
+      const scoreA = a.score?.total ?? -1;
+      const scoreB = b.score?.total ?? -1;
+      return scoreB - scoreA;
+    });
+
+    let currentRank = 1;
+    return sorted.map((sub: any, index: number) => {
+      if (index > 0) {
+        const prevSub = sorted[index - 1];
+        const prevScore = prevSub.score?.total ?? -1;
+        const currScore = sub.score?.total ?? -1;
+        if (currScore !== prevScore) {
+          currentRank = index + 1;
+        }
+      }
+      return {
+        ...sub,
+        rank: sub.score ? currentRank : null,
+      };
+    });
+  };
+
+  const rankedProjects = getRankedProjects();
+  const filteredProjects = rankedProjects.filter((sub: any) => {
+    const title = getProjectTitle(sub).toLowerCase();
+    const teamName = (sub.team?.name || "").toLowerCase();
+    const founderName = `${sub.team?.founder?.firstName || ""} ${sub.team?.founder?.lastName || ""}`.toLowerCase();
+    const membersNames = (sub.team?.members || [])
+      .map((m: any) => `${m.firstName} ${m.lastName}`)
+      .join(" ")
+      .toLowerCase();
+    const search = rankingsSearchTerm.toLowerCase();
+    return (
+      title.includes(search) ||
+      teamName.includes(search) ||
+      founderName.includes(search) ||
+      membersNames.includes(search)
+    );
+  });
 
   const handleCreateTeam = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -323,7 +404,7 @@ const CapstonePage = () => {
 
       {/* Tabs */}
       <div className="flex space-x-4 border-b border-gray-200">
-        {(["GUIDE", "TEAM", "SUBMISSIONS", "SHORTLISTED"] as const).map((tab) => (
+        {(["GUIDE", "TEAM", "SUBMISSIONS", "SHORTLISTED", "RANKINGS"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -332,7 +413,7 @@ const CapstonePage = () => {
               : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
           >
-            {tab === "GUIDE" ? "Guide" : tab === "TEAM" ? "My Team" : tab === "SUBMISSIONS" ? "Submissions" : "Shortlisted"}
+            {tab === "GUIDE" ? "Guide" : tab === "TEAM" ? "My Team" : tab === "SUBMISSIONS" ? "Submissions" : tab === "SHORTLISTED" ? "Shortlisted" : "Project Rankings"}
           </button>
         ))}
       </div>
@@ -405,8 +486,8 @@ const CapstonePage = () => {
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
                     {isFounder && (
-                      <button 
-                        onClick={() => setShowInviteModal(true)} 
+                      <button
+                        onClick={() => setShowInviteModal(true)}
                         className="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:bg-indigo-700 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
                       >
                         <UserPlus size={18} />
@@ -414,8 +495,8 @@ const CapstonePage = () => {
                       </button>
                     )}
                     {!isFounder && (
-                      <button 
-                        onClick={handleLeaveTeam} 
+                      <button
+                        onClick={handleLeaveTeam}
                         className="px-6 py-2.5 bg-white text-red-600 border-2 border-red-100 hover:border-red-600 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-red-50 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
                       >
                         <Rocket size={18} className="rotate-180" />
@@ -510,14 +591,14 @@ const CapstonePage = () => {
                             </p>
                           </div>
                           <div className="flex gap-2 mt-2">
-                            <button 
-                              onClick={() => acceptInvite(inv._id)} 
+                            <button
+                              onClick={() => acceptInvite(inv._id)}
                               className="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm"
                             >
                               Accept
                             </button>
-                            <button 
-                              onClick={() => rejectInvite(inv._id)} 
+                            <button
+                              onClick={() => rejectInvite(inv._id)}
                               className="flex-1 py-2 bg-white text-gray-600 border border-gray-200 rounded-lg text-sm font-bold hover:bg-gray-50 transition-colors"
                             >
                               Reject
@@ -899,6 +980,315 @@ const CapstonePage = () => {
             )}
           </div>
         )}
+
+        {activeTab === "RANKINGS" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-4">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <Trophy className="text-indigo-600" size={22} />
+                  Project Rankings
+                </h2>
+                <p className="text-sm text-gray-500 mt-0.5">
+                  See how all teams performed in the Capstone Projects evaluation.
+                </p>
+              </div>
+
+              {/* Stage Filter */}
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-full sm:w-auto self-start sm:self-center">
+                {(["PROPOSAL", "PITCH_DECK"] as const).map((stage) => (
+                  <button
+                    key={stage}
+                    onClick={() => setRankingsStage(stage)}
+                    className={cn(
+                      "flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-black transition-all whitespace-nowrap cursor-pointer",
+                      rankingsStage === stage
+                        ? stage === "PROPOSAL"
+                          ? "bg-blue-600 text-white shadow-sm"
+                          : "bg-purple-600 text-white shadow-sm"
+                        : "text-slate-500 hover:text-slate-700"
+                    )}
+                  >
+                    {stage === "PROPOSAL" ? "Proposal Stage" : "Pitch Deck Stage"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Search filter for rankings */}
+            <div className="relative w-full md:max-w-md group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-indigo-600 transition-colors" />
+              <input
+                type="text"
+                placeholder="Search by title, team, or members..."
+                value={rankingsSearchTerm}
+                onChange={(e) => setRankingsSearchTerm(e.target.value)}
+                className="w-full h-11 pl-12 pr-4 bg-slate-50 border-transparent rounded-xl text-sm font-medium focus:ring-4 focus:ring-indigo-600/5 focus:bg-white transition-all focus:outline-none border border-transparent focus:border-indigo-600/20"
+              />
+            </div>
+
+            {/* Table / Cards */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-inner overflow-hidden animate-in fade-in duration-500">
+              {/* Desktop View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50/80 border-b border-slate-100">
+                      <th className="py-6 px-8 text-[10px] font-black font-heading uppercase tracking-[0.2em] text-slate-400">
+                        Rank
+                      </th>
+                      <th className="py-6 px-8 text-[10px] font-black font-heading uppercase tracking-[0.2em] text-slate-400">
+                        Project & Team
+                      </th>
+                      <th className="py-6 px-8 text-[10px] font-black font-heading uppercase tracking-[0.2em] text-slate-400">
+                        Team Lead & Members
+                      </th>
+                      <th className="py-6 px-8 text-[10px] font-black font-heading uppercase tracking-[0.2em] text-slate-400 text-center">
+                        Detailed Scores
+                      </th>
+                      <th className="py-6 px-8 text-[10px] font-black font-heading uppercase tracking-[0.2em] text-indigo-600 text-right">
+                        Grade & Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {isLoading ? (
+                      Array.from({ length: 5 }).map((_, i) => (
+                        <tr key={i} className="animate-pulse">
+                          <td className="py-6 px-8"><div className="w-8 h-8 bg-slate-100 rounded-full" /></td>
+                          <td className="py-6 px-8">
+                            <div className="space-y-2">
+                              <div className="h-4 bg-slate-100 rounded w-40" />
+                              <div className="h-3 bg-slate-100 rounded w-24" />
+                            </div>
+                          </td>
+                          <td className="py-6 px-8"><div className="h-4 bg-slate-100 rounded w-36" /></td>
+                          <td className="py-6 px-8 text-center"><div className="h-6 bg-slate-100 rounded w-32 mx-auto" /></td>
+                          <td className="py-6 px-8 text-right"><div className="h-8 bg-slate-100 rounded w-16 ml-auto" /></td>
+                        </tr>
+                      ))
+                    ) : filteredProjects.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-20 text-center">
+                          <p className="text-slate-400 font-black uppercase tracking-widest text-xs">No Ranked Projects Found</p>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredProjects.map((sub: any) => {
+                        const logoUrl = getTeamLogoUrl(sub);
+                        const hasLogo = !!logoUrl;
+                        const isMyTeam = myTeam?._id === sub.team?._id;
+                        return (
+                          <tr
+                            key={sub._id}
+                            className={cn(
+                              "hover:bg-slate-50/50 transition-colors group relative",
+                              isMyTeam && "bg-indigo-50/30 hover:bg-indigo-50/40"
+                            )}
+                          >
+                            <td className="py-5 px-8">
+                              <div className="flex items-center gap-3">
+                                {sub.rank !== null && sub.rank <= 3 ? (
+                                  <div className={cn(
+                                    "w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shadow-sm",
+                                    sub.rank === 1 ? "bg-amber-100 text-amber-700 border border-amber-200" :
+                                      sub.rank === 2 ? "bg-slate-200 text-slate-700 border border-slate-300" :
+                                        "bg-orange-100 text-orange-700 border border-orange-200"
+                                  )}>
+                                    {sub.rank}
+                                  </div>
+                                ) : (
+                                  <span className="text-base font-black font-heading text-slate-400 w-8 text-center">
+                                    {sub.rank !== null ? `#${sub.rank}` : "-"}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-5 px-8">
+                              <div className="flex items-center gap-3">
+                                {hasLogo ? (
+                                  <img
+                                    src={formatLogoUrl(logoUrl)}
+                                    alt="Logo"
+                                    className="w-10 h-10 rounded-full object-cover border border-slate-100 shadow-sm shrink-0"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display = "none";
+                                    }}
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 shadow-sm shrink-0">
+                                    <Rocket className="text-slate-400" size={18} />
+                                  </div>
+                                )}
+                                <div>
+                                  <div className="font-black font-heading text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight leading-tight flex items-center gap-2">
+                                    <span>{getProjectTitle(sub)}</span>
+                                    {isMyTeam && (
+                                      <span className="px-2 py-0.5 bg-indigo-600 text-white rounded text-[8px] font-black uppercase tracking-widest shrink-0">
+                                        Your Team
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-0.5">
+                                    Team: {sub.team?.name || "Independent"}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-5 px-8">
+                              <div>
+                                <span className="text-xs text-slate-700 font-bold block">
+                                  Lead: {sub.team?.founder?.firstName} {sub.team?.founder?.lastName}
+                                </span>
+                                <div className="flex -space-x-1.5 mt-1.5">
+                                  {sub.team?.members?.map((member: any, i: number) => (
+                                    <div
+                                      key={i}
+                                      className="w-5 h-5 rounded-full bg-indigo-50 border border-white flex items-center justify-center text-[8px] font-black text-indigo-700"
+                                      title={`${member.firstName} ${member.lastName}`}
+                                    >
+                                      {member.firstName[0]}{member.lastName[0]}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-5 px-8 text-center">
+                              {sub.score ? (
+                                <div className="flex flex-wrap gap-1.5 justify-center max-w-[300px] mx-auto">
+                                  <span className="px-2 py-0.5 bg-slate-50 text-slate-600 rounded text-[9px] font-black tracking-wide border border-slate-100" title="Relevance (25%)">R: {sub.score.relevance}</span>
+                                  <span className="px-2 py-0.5 bg-slate-50 text-slate-600 rounded text-[9px] font-black tracking-wide border border-slate-100" title="Innovation (25%)">I: {sub.score.innovation}</span>
+                                  <span className="px-2 py-0.5 bg-slate-50 text-slate-600 rounded text-[9px] font-black tracking-wide border border-slate-100" title="Clarity (20%)">C: {sub.score.clarity}</span>
+                                  <span className="px-2 py-0.5 bg-slate-50 text-slate-600 rounded text-[9px] font-black tracking-wide border border-slate-100" title="Feasibility (15%)">F: {sub.score.feasibility}</span>
+                                  <span className="px-2 py-0.5 bg-slate-50 text-slate-600 rounded text-[9px] font-black tracking-wide border border-slate-100" title="Presentation (15%)">P: {sub.score.presentation}</span>
+                                </div>
+                              ) : (
+                                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                  Scores Pending
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-5 px-8 text-right">
+                              {sub.score ? (
+                                <div className="text-right">
+                                  <span className={cn(
+                                    "text-2xl font-black font-heading tracking-tighter block",
+                                    sub.score.passed ? "text-green-600" : "text-rose-600"
+                                  )}>
+                                    {sub.score.total}%
+                                  </span>
+                                  <span className={cn(
+                                    "inline-flex items-center gap-0.5 text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded",
+                                    sub.score.passed ? "bg-green-50 text-green-700 border border-green-100" : "bg-rose-50 text-rose-700 border border-rose-100"
+                                  )}>
+                                    {sub.score.passed ? "Passed" : "Needs Review"}
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1.5 justify-end text-rose-500 font-bold text-xs uppercase tracking-wider">
+                                  <Clock size={14} className="text-rose-400" />
+                                  <span>Pending</span>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile View */}
+              <div className="md:hidden divide-y divide-slate-50">
+                {isLoading ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="p-5 animate-pulse space-y-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-slate-100 rounded-lg" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 bg-slate-100 rounded w-2/3" />
+                          <div className="h-3 bg-slate-100 rounded w-1/2" />
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center pt-2">
+                        <div className="h-6 w-16 bg-slate-100 rounded-lg" />
+                        <div className="h-8 w-12 bg-slate-100 rounded-lg" />
+                      </div>
+                    </div>
+                  ))
+                ) : filteredProjects.length === 0 ? (
+                  <div className="p-10 text-center">
+                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">No Projects Graded Yet</p>
+                  </div>
+                ) : (
+                  filteredProjects.map((sub: any) => {
+                    const isMyTeam = myTeam?._id === sub.team?._id;
+                    return (
+                      <div
+                        key={sub._id}
+                        className={cn(
+                          "p-5 active:bg-slate-50 transition-colors",
+                          isMyTeam && "bg-indigo-50/20 border-l-4 border-indigo-600"
+                        )}
+                      >
+                        <div className="flex items-center gap-4 mb-3">
+                          <div className={cn(
+                            "w-10 h-10 shrink-0 rounded-lg flex items-center justify-center font-black text-xs shadow-sm",
+                            sub.rank !== null && sub.rank <= 3 ? (
+                              sub.rank === 1 ? "bg-amber-100 text-amber-700 border border-amber-200" :
+                                sub.rank === 2 ? "bg-slate-200 text-slate-700 border border-slate-300" :
+                                  "bg-orange-100 text-orange-700 border border-orange-200"
+                            ) : "bg-slate-50 text-slate-400 border border-slate-100"
+                          )}>
+                            {sub.rank ? (sub.rank <= 3 ? sub.rank : `#${sub.rank}`) : "-"}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-black font-heading text-slate-900 uppercase tracking-tight truncate leading-tight flex items-center gap-2">
+                              <span>{getProjectTitle(sub)}</span>
+                              {isMyTeam && (
+                                <span className="px-1.5 py-0.5 bg-indigo-600 text-white rounded text-[7px] font-black uppercase tracking-widest shrink-0">
+                                  Your Team
+                                </span>
+                              )}
+                            </h3>
+                            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest truncate mt-0.5">
+                              Team: {sub.team?.name || "Independent"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                            Lead: {sub.team?.founder?.firstName} {sub.team?.founder?.lastName?.[0]}.
+                          </div>
+                          <div>
+                            {sub.score ? (
+                              <div className="flex items-baseline gap-1">
+                                <span className="text-xl font-black font-heading text-slate-900 tracking-tighter">
+                                  {sub.score.total}%
+                                </span>
+                                <span className={cn(
+                                  "text-[8px] font-black uppercase tracking-widest",
+                                  sub.score.passed ? "text-green-600" : "text-rose-600"
+                                )}>
+                                  ({sub.score.passed ? "Passed" : "Failed"})
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-xs font-bold text-rose-500 uppercase tracking-widest flex items-center gap-1">
+                                <Clock size={12} /> Pending
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       {/* Team Details Modal */}
       {/* Invite Member Modal */}
@@ -952,15 +1342,15 @@ const CapstonePage = () => {
       {/* Leave Team Confirmation Modal */}
       {showLeaveModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md p-8 md:p-10 text-center space-y-8"
           >
             <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center mx-auto shadow-inner">
-               <Rocket size={40} className="text-red-500 rotate-180" />
+              <Rocket size={40} className="text-red-500 rotate-180" />
             </div>
-            
+
             <div className="space-y-3">
               <h3 className="text-2xl font-black font-heading text-slate-900 tracking-tight">Confirm Departure?</h3>
               <p className="text-slate-500 font-medium text-sm leading-relaxed">
@@ -969,14 +1359,14 @@ const CapstonePage = () => {
             </div>
 
             <div className="flex flex-col gap-3">
-              <button 
-                onClick={confirmLeaveTeamAction} 
+              <button
+                onClick={confirmLeaveTeamAction}
                 className="w-full py-4 bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-red-600/20 hover:bg-red-700 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
               >
                 Confirm Departure
               </button>
-              <button 
-                onClick={() => setShowLeaveModal(false)} 
+              <button
+                onClick={() => setShowLeaveModal(false)}
                 className="w-full py-4 bg-slate-50 text-slate-400 hover:text-slate-600 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all cursor-pointer"
               >
                 Stay with Team

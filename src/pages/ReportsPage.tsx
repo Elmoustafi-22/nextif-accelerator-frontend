@@ -10,6 +10,8 @@ import {
   Zap,
   Download,
   ChevronDown,
+  FileText,
+  Rocket,
 } from "lucide-react";
 import axiosInstance from "../api/axiosInstance";
 import { cn } from "../utils/cn";
@@ -19,6 +21,7 @@ import { motion } from "framer-motion";
 const ReportsPage = () => {
   const [stats, setStats] = useState<any>(null);
   const [tasks, setTasks] = useState<any[]>([]);
+  const [capstoneSubmissions, setCapstoneSubmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState("all"); // all, week, month
 
@@ -27,11 +30,30 @@ const ReportsPage = () => {
       try {
         setLoading(true);
         const [statsRes, tasksRes] = await Promise.all([
-          axiosInstance.get("/ambassador/stats"),
+          axiosInstance.get("/ambassador/dashboard/stats"),
           axiosInstance.get("/tasks/my/all"),
         ]);
         setStats(statsRes.data);
         setTasks(tasksRes.data);
+
+        // Fetch capstone data: first get the user's team, then get all submissions and filter
+        try {
+          const teamRes = await axiosInstance.get("/capstone/teams/me");
+          const teamId = teamRes.data?.team?._id;
+          if (teamId) {
+            const submissionsRes = await axiosInstance.get("/capstone/submissions");
+            const allSubmissions = submissionsRes.data?.submissions || [];
+            const mySubmissions = allSubmissions.filter(
+              (s: any) => s.team?._id === teamId || s.team === teamId
+            );
+            setCapstoneSubmissions(mySubmissions);
+          }
+        } catch (capstoneErr: any) {
+          // 404 means user is not in a team — that's OK, just no capstone data
+          if (capstoneErr?.response?.status !== 404) {
+            console.error("Error fetching capstone data for report:", capstoneErr);
+          }
+        }
       } catch (error) {
         console.error("Error fetching reports data:", error);
       } finally {
@@ -361,6 +383,150 @@ const ReportsPage = () => {
         </div>
       </div>
 
+      {/* Capstone Project Evaluation & Grades */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-black font-heading text-slate-900 tracking-tight">
+              Capstone Project Grades
+            </h2>
+            <p className="text-slate-400 text-sm font-medium font-heading">
+              Official evaluation metrics, scoring breakdown, and feedback for your startup project.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {(["PROPOSAL", "PITCH_DECK"] as const).map((stage) => {
+            const sub = capstoneSubmissions.find((s) => s.stage === stage);
+            const isGraded = !!sub?.score;
+
+            return (
+              <div
+                key={stage}
+                className={cn(
+                  "bg-white rounded-[2.5rem] border p-8 shadow-sm transition-all relative overflow-hidden group flex flex-col justify-between min-h-[320px]",
+                  sub
+                    ? isGraded
+                      ? "border-emerald-100 hover:shadow-emerald-500/5"
+                      : "border-amber-100 hover:shadow-amber-500/5"
+                    : "border-slate-100 border-dashed hover:border-slate-200"
+                )}
+              >
+                <div>
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <span
+                        className={cn(
+                          "px-3 py-1 rounded-xl text-[10px] font-black font-heading uppercase tracking-widest border shadow-xs",
+                          stage === "PROPOSAL"
+                            ? "bg-blue-50 border-blue-100 text-blue-700"
+                            : "bg-purple-50 border-purple-100 text-purple-700"
+                        )}
+                      >
+                        {stage.replace("_", " ")}
+                      </span>
+                      <h3 className="text-xl font-black font-heading text-slate-900 mt-3">
+                        {sub?.content?.projectTitle || "Project Submission"}
+                      </h3>
+                    </div>
+
+                    {sub ? (
+                      isGraded ? (
+                        <div className="px-4 py-2 bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-black font-heading uppercase tracking-widest rounded-xl shadow-xs">
+                          {sub.score.passed ? "✓ Passed" : "✗ Needs Work"} · {sub.score.total}%
+                        </div>
+                      ) : (
+                        <div className="px-4 py-2 bg-amber-50 border border-amber-100 text-amber-700 text-[10px] font-black font-heading uppercase tracking-widest rounded-xl shadow-xs flex items-center gap-1.5 animate-pulse">
+                          <Clock size={12} /> Pending Evaluation
+                        </div>
+                      )
+                    ) : (
+                      <div className="px-4 py-2 bg-slate-50 border border-slate-100 text-slate-400 text-[10px] font-black font-heading uppercase tracking-widest rounded-xl">
+                        Not Submitted
+                      </div>
+                    )}
+                  </div>
+
+                  {sub ? (
+                    isGraded ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-5 gap-2 text-center">
+                          {[
+                            { label: "Rel", val: sub.score.relevance, max: 25 },
+                            { label: "Inn", val: sub.score.innovation, max: 25 },
+                            { label: "Cla", val: sub.score.clarity, max: 20 },
+                            { label: "Fea", val: sub.score.feasibility, max: 15 },
+                            { label: "Pre", val: sub.score.presentation, max: 15 }
+                          ].map((item) => (
+                            <div key={item.label} className="bg-slate-50 rounded-xl p-2 border border-slate-100/50">
+                              <p className="text-[9px] font-black uppercase text-slate-400">{item.label}</p>
+                              <p className="text-sm font-black text-slate-950 mt-1">{item.val}</p>
+                              <p className="text-[8px] text-slate-400">/{item.max}</p>
+                            </div>
+                          ))}
+                        </div>
+                        {sub.score.remarks && (
+                          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/60 mt-3">
+                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Feedback</p>
+                            <p className="text-xs text-slate-600 font-medium italic leading-relaxed">
+                              "{sub.score.remarks}"
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100/60 border-dashed text-center">
+                        <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                          Your submission has been registered. The academic panel will review and score it shortly.
+                        </p>
+                      </div>
+                    )
+                  ) : (
+                    <div className="p-8 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                      <p className="text-sm text-slate-400 font-medium italic">
+                        No submissions recorded for this milestone stage.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {sub?.content?.proposalDocUrl && (
+                  <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
+                    <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                      Documents Attached
+                    </span>
+                    <a
+                      href={sub.content.proposalDocUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-black text-indigo-600 hover:text-indigo-700 hover:underline flex items-center gap-1.5"
+                    >
+                      <FileText size={14} /> Proposal.pdf
+                    </a>
+                  </div>
+                )}
+                {sub?.content?.pitchDeckUrl && (
+                  <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
+                    <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                      Documents Attached
+                    </span>
+                    <a
+                      href={sub.content.pitchDeckUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-black text-indigo-600 hover:text-indigo-700 hover:underline flex items-center gap-1.5"
+                    >
+                      <Rocket size={14} /> Pitch_Deck.pdf
+                    </a>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Recent Activity */}
       <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden relative group">
         <div className="p-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
@@ -406,12 +572,24 @@ const ReportsPage = () => {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-lg font-black font-heading text-slate-900 truncate tracking-tight group-hover/item:text-indigo-600 transition-colors">
-                      {task.title}
-                    </h4>
+                    <div className="flex items-center gap-3">
+                      <h4 className="text-lg font-black font-heading text-slate-900 truncate tracking-tight group-hover/item:text-indigo-600 transition-colors">
+                        {task.title}
+                      </h4>
+                      {task.submission?.grade !== undefined && (
+                        <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 text-[9px] font-black uppercase tracking-widest rounded">
+                          Grade: {task.submission.grade}/5
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-slate-400 font-black font-heading uppercase tracking-widest mt-1 opacity-70">
-                      {new Date(task.createdAt).toLocaleDateString()} • {task.rewardPoints || 0} XP
+                      {new Date(task.createdAt).toLocaleDateString()} • {task.submission?.pointsAwarded || task.rewardPoints || 0} XP
                     </p>
+                    {task.submission?.adminFeedback && (
+                      <p className="text-xs text-slate-500 italic mt-2 bg-slate-50 p-2 rounded-lg border border-slate-100/50 inline-block">
+                        Feedback: "{task.submission.adminFeedback}"
+                      </p>
+                    )}
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <span
