@@ -22,6 +22,8 @@ interface User {
     hasPaidCertificate?: boolean;
     certificatePaymentDate?: string | Date;
     certificateUrl?: string;
+    isGraduated?: boolean;
+    graduationDate?: string | Date;
   };
 }
 

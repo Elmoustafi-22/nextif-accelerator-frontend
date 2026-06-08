@@ -11,6 +11,7 @@ import {
   Award,
   Zap,
   Users,
+  GraduationCap,
 } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useToastStore } from "../store/useToastStore";
@@ -135,13 +136,47 @@ const FellowsDashboard = () => {
           <motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-2xl md:text-4xl font-black font-heading text-slate-900 tracking-tight"
+            className="text-2xl md:text-4xl font-black font-heading text-slate-900 tracking-tight flex flex-wrap items-center gap-3"
           >
             Welcome back, <span className="text-indigo-600">{user?.firstName || "Ambassador"}</span> 👋
+            {user?.profile?.isGraduated && (
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-full text-xs font-black uppercase tracking-wider shadow-lg shadow-amber-500/20">
+                <GraduationCap size={14} className="animate-bounce" /> Graduated
+              </span>
+            )}
           </motion.h1>
           <p className="text-slate-500 font-medium text-sm md:text-lg">
             Monitor your program progress and task achievements.
           </p>
+
+          {/* Graduation Celebration Banner */}
+          {user?.profile?.isGraduated && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-6 bg-gradient-to-r from-amber-500 via-orange-600 to-amber-700 rounded-[2rem] p-6 md:p-8 text-white shadow-2xl shadow-amber-500/25 relative overflow-hidden group"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-125 transition-transform duration-700" />
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-amber-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+              
+              <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-8">
+                <div className="p-4 bg-white/20 rounded-3xl backdrop-blur-md shrink-0">
+                  <GraduationCap size={44} className="text-white animate-pulse" />
+                </div>
+                <div className="space-y-1 text-center md:text-left">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/20 backdrop-blur-md">
+                    <span className="text-[10px] font-black uppercase tracking-widest">Congratulations Graduate</span>
+                  </div>
+                  <h2 className="text-xl md:text-3xl font-black font-heading tracking-tight mt-1">
+                    Program Completed!
+                  </h2>
+                  <p className="text-amber-100/90 font-semibold text-xs md:text-sm leading-relaxed mt-2 max-w-xl">
+                    You have successfully graduated from the NextIF Cohort 002 Program. We pray that Allah blesses your future endeavors and makes this a stepping stone to great achievements in Shariah-compliant finance and leadership. 🎓🌟
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Pending Team Invites */}
           {invites.length > 0 && (
