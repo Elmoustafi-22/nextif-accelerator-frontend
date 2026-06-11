@@ -544,7 +544,7 @@ const TaskDetailsPage = () => {
                                 {file ? file.name : "Upload Documentation"}
                               </p>
                               <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">
-                                PDF, Media, Logs (Limit: 50MB)
+                                PDF, Media, Logs (Limit: 10MB)
                               </p>
                             </div>
                           </label>

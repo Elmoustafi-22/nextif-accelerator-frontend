@@ -807,15 +807,15 @@ const CapstonePage = () => {
                           <div className="p-6 border-2 border-dashed border-indigo-100 rounded-xl bg-indigo-50/30 flex flex-col items-center">
                             <FileUp size={32} className="text-indigo-400 mb-2" />
                             <p className="text-sm font-medium text-indigo-900">Upload Full Proposal Document</p>
-                            <p className="text-xs text-slate-500 mb-4">{isEditingProposal ? "Leave empty to keep existing document. PDF or Docx preferred. Max 30MB." : "Max 2-3 pages. PDF or Docx preferred. Max 30MB."}</p>
+                            <p className="text-xs text-slate-500 mb-4">{isEditingProposal ? "Leave empty to keep existing document. PDF or Docx preferred. Max 10MB." : "Max 2-3 pages. PDF or Docx preferred. Max 10MB."}</p>
                             <input
                               type="file"
                               accept=".pdf,.doc,.docx"
                               required={!isEditingProposal}
                               onChange={e => {
                                 const file = e.target.files ? e.target.files[0] : null;
-                                if (file && file.size > 30 * 1024 * 1024) {
-                                  addToast("Proposal document must be 30MB or less", "error");
+                                if (file && file.size > 10 * 1024 * 1024) {
+                                  addToast("Proposal document must be 10MB or less", "error");
                                   e.target.value = "";
                                   return setProposalFile(null);
                                 }
@@ -887,15 +887,15 @@ const CapstonePage = () => {
                       <div className="p-6 border-2 border-dashed border-indigo-100 rounded-xl bg-indigo-50/30 flex flex-col items-center">
                         <FileUp size={32} className="text-indigo-400 mb-2" />
                         <p className="text-sm font-medium text-indigo-900">Upload Final Pitch Deck</p>
-                        <p className="text-xs text-slate-500 mb-4">{isEditingPitchDeck ? "Leave empty to keep existing pitch deck. 5-7 slides. PDF or PPTX preferred. Max 30MB." : "5-7 slides. PDF or PPTX preferred. Max 30MB."}</p>
+                        <p className="text-xs text-slate-500 mb-4">{isEditingPitchDeck ? "Leave empty to keep existing pitch deck. 5-7 slides. PDF or PPTX preferred. Max 10MB." : "5-7 slides. PDF or PPTX preferred. Max 10MB."}</p>
                         <input
                           type="file"
                           accept=".pdf,.ppt,.pptx"
                           required={!isEditingPitchDeck}
                           onChange={e => {
                             const file = e.target.files ? e.target.files[0] : null;
-                            if (file && file.size > 30 * 1024 * 1024) {
-                              addToast("Pitch deck must be 30MB or less", "error");
+                            if (file && file.size > 10 * 1024 * 1024) {
+                              addToast("Pitch deck must be 10MB or less", "error");
                               e.target.value = "";
                               return setPitchDeckFile(null);
                             }
