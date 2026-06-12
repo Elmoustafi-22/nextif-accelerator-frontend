@@ -171,7 +171,7 @@ const FellowsDashboard = () => {
                     Program Completed!
                   </h2>
                   <p className="text-indigo-100/90 font-semibold text-xs md:text-sm leading-relaxed mt-2 max-w-xl">
-                    You have successfully graduated from the NextIF Global Islamic Finance Career Mentorship and Accelerator Program Cohort 2 Program. We pray that Allah blesses your future endeavors and makes this a stepping stone to great achievements in Shariah-compliant finance and leadership. 🎓🌟
+                    You have successfully graduated from the NextIF Global Islamic Finance Career Mentorship and Accelerator Program Cohort 2. We pray that Allah blesses your future endeavors and makes this a stepping stone to great achievements in Shariah-compliant finance and leadership. 🎓🌟
                   </p>
                 </div>
               </div>
