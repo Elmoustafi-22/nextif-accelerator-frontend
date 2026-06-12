@@ -84,7 +84,7 @@ const FellowsDashboard = () => {
         setUpcomingEvents(eventsRes.data.slice(0, 2)); // Show top 2 upcoming
         setPaymentConfig(paymentRes?.data);
         setInvites(invitesRes.data.invites || []);
-        
+
         if (profileRes?.data) {
           useAuthStore.getState().updateUser(profileRes.data.data || profileRes.data);
         }
@@ -107,7 +107,7 @@ const FellowsDashboard = () => {
     try {
       await axiosInstance.post(`/capstone/invites/${inviteId}/accept`);
       addToast("Successfully joined the team!", "success");
-      
+
       // Navigate to capstone page to see the new team
       navigate("/capstone");
     } catch (err: any) {
@@ -140,7 +140,7 @@ const FellowsDashboard = () => {
           >
             Welcome back, <span className="text-indigo-600">{user?.firstName || "Ambassador"}</span> 👋
             {user?.profile?.isGraduated && (
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-full text-xs font-black uppercase tracking-wider shadow-lg shadow-amber-500/20">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-full text-xs font-black uppercase tracking-wider shadow-lg shadow-indigo-500/20">
                 <GraduationCap size={14} className="animate-bounce" /> Graduated
               </span>
             )}
@@ -154,11 +154,11 @@ const FellowsDashboard = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="mt-6 bg-gradient-to-r from-amber-500 via-orange-600 to-amber-700 rounded-[2rem] p-6 md:p-8 text-white shadow-2xl shadow-amber-500/25 relative overflow-hidden group"
+              className="mt-6 bg-gradient-to-r from-indigo-600 via-indigo-700 to-slate-800 rounded-[2rem] p-6 md:p-8 text-white shadow-2xl shadow-indigo-500/25 relative overflow-hidden group"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-125 transition-transform duration-700" />
-              <div className="absolute bottom-0 left-0 w-40 h-40 bg-amber-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-              
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-indigo-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+
               <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-8">
                 <div className="p-4 bg-white/20 rounded-3xl backdrop-blur-md shrink-0">
                   <GraduationCap size={44} className="text-white animate-pulse" />
@@ -170,8 +170,8 @@ const FellowsDashboard = () => {
                   <h2 className="text-xl md:text-3xl font-black font-heading tracking-tight mt-1">
                     Program Completed!
                   </h2>
-                  <p className="text-amber-100/90 font-semibold text-xs md:text-sm leading-relaxed mt-2 max-w-xl">
-                    You have successfully graduated from the NextIF Cohort 002 Program. We pray that Allah blesses your future endeavors and makes this a stepping stone to great achievements in Shariah-compliant finance and leadership. 🎓🌟
+                  <p className="text-indigo-100/90 font-semibold text-xs md:text-sm leading-relaxed mt-2 max-w-xl">
+                    You have successfully graduated from the NextIF Global Islamic Finance Career Mentorship and Accelerator Program Cohort 2 Program. We pray that Allah blesses your future endeavors and makes this a stepping stone to great achievements in Shariah-compliant finance and leadership. 🎓🌟
                   </p>
                 </div>
               </div>
@@ -180,7 +180,7 @@ const FellowsDashboard = () => {
 
           {/* Pending Team Invites */}
           {invites.length > 0 && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="mt-6 bg-indigo-600 rounded-[2rem] p-6 md:p-8 text-white shadow-xl shadow-indigo-600/20 relative overflow-hidden"
@@ -196,7 +196,7 @@ const FellowsDashboard = () => {
                     <p className="text-xs text-indigo-100 font-bold uppercase tracking-widest opacity-80">Pending Invitations</p>
                   </div>
                 </div>
-                
+
                 <div className="grid gap-4">
                   {invites.map(inv => (
                     <div key={inv._id} className="bg-white/10 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -207,14 +207,14 @@ const FellowsDashboard = () => {
                         </p>
                       </div>
                       <div className="flex gap-3">
-                        <button 
-                          onClick={() => acceptInvite(inv._id)} 
+                        <button
+                          onClick={() => acceptInvite(inv._id)}
                           className="flex-1 md:flex-none px-6 py-2.5 bg-white text-indigo-600 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-50 transition-all shadow-lg active:scale-95"
                         >
                           Accept
                         </button>
-                        <button 
-                          onClick={() => rejectInvite(inv._id)} 
+                        <button
+                          onClick={() => rejectInvite(inv._id)}
                           className="flex-1 md:flex-none px-6 py-2.5 bg-indigo-500/30 text-white border border-white/20 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-500/50 transition-all active:scale-95"
                         >
                           Decline
@@ -271,7 +271,7 @@ const FellowsDashboard = () => {
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-125 transition-transform duration-700" />
           <div className="absolute bottom-0 left-0 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-          
+
           <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="space-y-4 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full border border-white/20 backdrop-blur-md">
@@ -285,7 +285,7 @@ const FellowsDashboard = () => {
                 Secure your certificate for the incredible work and dedication involved in this project.
               </p>
             </div>
-            
+
             <div className="bg-white/5 backdrop-blur-xl p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-white/10 w-full lg:w-auto min-w-0 sm:min-w-[300px] text-center">
               <div className="flex items-center justify-center gap-3 mb-6">
                 <div className="p-3 bg-white/10 rounded-2xl">
@@ -322,7 +322,7 @@ const FellowsDashboard = () => {
               View All
             </Link>
           </div>
-          
+
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="h-40 md:h-48 bg-slate-50 rounded-2xl md:rounded-[2.5rem] animate-pulse" />
@@ -330,7 +330,7 @@ const FellowsDashboard = () => {
             </div>
           ) : upcomingEvents.length === 0 ? (
             <div className="bg-slate-50 p-8 md:p-12 rounded-2xl md:rounded-[2.5rem] border border-slate-100 text-center">
-               <p className="text-slate-400 font-bold font-heading uppercase tracking-widest text-[10px] md:text-xs">
+              <p className="text-slate-400 font-bold font-heading uppercase tracking-widest text-[10px] md:text-xs">
                 No sessions scheduled.
               </p>
             </div>
@@ -362,13 +362,13 @@ const FellowsDashboard = () => {
                           Awaiting Sync
                         </div>
                       )}
-                      <a 
+                      <a
                         href={generateGoogleCalendarLink(event.title, event.date, event.explanation || "NextIF Mentorship Session", event.location)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-center gap-2 w-full py-3 border border-slate-700 hover:bg-slate-800 text-slate-400 hover:text-white rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all"
                       >
-                         Sync to Calendar
+                        Sync to Calendar
                       </a>
                     </div>
                   ) : (
@@ -376,13 +376,13 @@ const FellowsDashboard = () => {
                       <Link to="/events" className="flex items-center justify-center gap-3 w-full py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all">
                         View Details
                       </Link>
-                      <a 
+                      <a
                         href={generateGoogleCalendarLink(event.title, event.date, event.explanation || "NextIF Mentorship Session", event.location)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-center gap-2 w-full py-3 border border-slate-700 hover:bg-slate-800 text-slate-400 hover:text-white rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all"
                       >
-                         Sync to Calendar
+                        Sync to Calendar
                       </a>
                     </div>
                   )}
