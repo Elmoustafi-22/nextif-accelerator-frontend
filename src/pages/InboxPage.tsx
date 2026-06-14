@@ -16,6 +16,63 @@ const InboxPage = () => {
     fetchNotifications();
   }, [fetchNotifications]);
 
+  const formatBody = (text: string) => {
+    if (!text) return "";
+
+    // 1. Escape HTML
+    let formatted = text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+    // 2. Bold
+    formatted = formatted.replace(/\*\*(.*?)\*\*/g, "<strong class='text-slate-900'>$1</strong>");
+
+    // 3. Italics
+    formatted = formatted.replace(/\*(.*?)\*/g, "<em>$1</em>");
+    formatted = formatted.replace(/_(.*?)_/g, "<em>$1</em>");
+
+    // 4. Code
+    formatted = formatted.replace(/`(.*?)`/g, "<code class='bg-slate-100 px-1.5 py-0.5 rounded text-red-600 font-mono text-xs'>$1</code>");
+
+    // Highlighted link style class
+    const linkClass = "text-indigo-600 font-black underline bg-indigo-50 px-1.5 py-0.5 rounded-lg transition-all hover:bg-indigo-100 hover:text-indigo-700 shadow-sm shadow-indigo-500/5";
+
+    // 5. Standalone URL Autolinking
+    formatted = formatted.replace(/(?<!href=["'])(https?:\/\/[^\s<()]+)/g, `<a href='$1' class='${linkClass}' target='_blank' rel='noreferrer'>$1</a>`);
+
+    // 6. Markdown link
+    formatted = formatted.replace(/\[(.*?)\]\((.*?)\)/g, `<a href='$2' class='${linkClass}' target='_blank' rel='noreferrer'>$1</a>`);
+
+    // 7. Lists
+    const lines = formatted.split("\n");
+    let inList = false;
+    const processedLines = lines.map(line => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+        const itemContent = trimmed.substring(2);
+        let prefix = "";
+        if (!inList) {
+          inList = true;
+          prefix = "<ul class='list-disc pl-5 my-4 space-y-2 text-slate-600'>";
+        }
+        return `${prefix}<li>${itemContent}</li>`;
+      } else {
+        let suffix = "";
+        if (inList) {
+          inList = false;
+          suffix = "</ul>";
+        }
+        return suffix + line;
+      }
+    });
+    if (inList) processedLines.push("</ul>");
+
+    formatted = processedLines.join("\n");
+    formatted = formatted.replace(/\n/g, "<br />");
+    return formatted;
+  };
+
   const filteredMessages = notifications.filter((m: any) => {
     if (tab === "messages") return m.type === "MESSAGE";
     return m.type === "ANNOUNCEMENT";
@@ -173,9 +230,8 @@ const InboxPage = () => {
                           ? "text-slate-600 font-bold"
                           : "text-slate-400 font-medium"
                       )}
-                    >
-                      {item.body}
-                    </p>
+                      dangerouslySetInnerHTML={{ __html: formatBody(item.body) }}
+                    />
                     {item.title.toLowerCase().includes("recording available") && (
                       <button
                         onClick={(e) => {
