@@ -599,16 +599,31 @@ const CapstonePage = () => {
                 <div className="text-center max-w-2xl mx-auto">
                   <h2 className="text-3xl font-bold text-gray-900">Formation Stage</h2>
                   <p className="text-gray-600 mt-2">You are not yet part of a capstone team. As a paid fellow, you may create your own team or wait to be invited by a team founder.</p>
-                  <button
-                    onClick={() => setIsCreatingTeam(true)}
-                    className="mt-6 px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors inline-flex items-center gap-2"
-                  >
-                    <UserPlus size={20} />
-                    Create New Team
-                  </button>
+                  
+                  {user?.profile?.hasPaidCertificate ? (
+                    <button
+                      onClick={() => setIsCreatingTeam(true)}
+                      className="mt-6 px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors inline-flex items-center gap-2"
+                    >
+                      <UserPlus size={20} />
+                      Create New Team
+                    </button>
+                  ) : (
+                    <div className="mt-8 p-6 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-4 text-left max-w-md mx-auto">
+                      <div className="p-2 bg-amber-100 rounded-xl shrink-0">
+                        <Shield size={20} className="text-amber-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-amber-900">Payment Required</h4>
+                        <p className="text-sm text-amber-800 mt-1 leading-relaxed">
+                          You must pay your certificate fee before you can create a capstone team. Please complete your payment on the Payments page to unlock team creation.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {isCreatingTeam && (
+                {user?.profile?.hasPaidCertificate && isCreatingTeam && (
                   <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 max-w-2xl mx-auto">
                     <h3 className="text-xl font-bold text-gray-900 mb-6">Create Your Capstone Team</h3>
                     <form onSubmit={handleCreateTeam} className="space-y-6">
