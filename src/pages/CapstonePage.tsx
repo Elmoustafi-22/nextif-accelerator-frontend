@@ -286,7 +286,9 @@ const CapstonePage = () => {
     searchTimer = setTimeout(async () => {
       try {
         const res = await axiosInstance.get(`/capstone/ambassadors/search?q=${encodeURIComponent(q)}`);
-        setSearchResults(res.data.results || []);
+        const results = res.data.results || [];
+        // Safeguard: only show paid fellows
+        setSearchResults(results.filter((r: any) => !r.profile || r.profile.hasPaidCertificate === true));
       } catch (err) {
         console.error(err);
         setSearchResults([]);
