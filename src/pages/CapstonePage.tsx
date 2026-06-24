@@ -25,7 +25,6 @@ const CapstonePage = () => {
   const [rankingsStage, setRankingsStage] = useState<"PROPOSAL" | "PITCH_DECK">("PROPOSAL");
   const [rankingsSearchTerm, setRankingsSearchTerm] = useState("");
   const [myTeam, setMyTeam] = useState<Team | null>(null);
-  const [availableTeams, setAvailableTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [shortlistedSubmissions, setShortlistedSubmissions] = useState<any[]>([]);
@@ -118,9 +117,8 @@ const CapstonePage = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [myTeamRes, allTeamsRes, shortlistedRes, allSubsRes] = await Promise.allSettled([
+      const [myTeamRes, shortlistedRes, allSubsRes] = await Promise.allSettled([
         axiosInstance.get("/capstone/teams/me"),
-        axiosInstance.get("/capstone/teams"),
         axiosInstance.get("/capstone/submissions/shortlisted"),
         axiosInstance.get("/capstone/submissions"),
         fetchDeadlines(),
@@ -133,10 +131,6 @@ const CapstonePage = () => {
         setMyTeam(currentTeam);
       } else {
         setMyTeam(null);
-      }
-
-      if (allTeamsRes.status === "fulfilled") {
-        setAvailableTeams(allTeamsRes.value.data.teams.filter((t: Team) => t.status === "OPEN" && t.segment !== "SOLO"));
       }
 
       if (shortlistedRes.status === "fulfilled") {
@@ -239,16 +233,6 @@ const CapstonePage = () => {
       addToast("Team created successfully!", "success");
     } catch (error) {
       addToast("Failed to create team", "error");
-    }
-  };
-
-  const handleJoinTeam = async (teamId: string) => {
-    try {
-      await axiosInstance.post(`/capstone/teams/${teamId}/join`);
-      fetchData();
-      addToast("Joined team successfully!", "success");
-    } catch (error: any) {
-      addToast(error.response?.data?.message || "Failed to join team", "error");
     }
   };
 
@@ -612,7 +596,7 @@ const CapstonePage = () => {
 
                 <div className="text-center max-w-2xl mx-auto">
                   <h2 className="text-3xl font-bold text-gray-900">Formation Stage</h2>
-                  <p className="text-gray-600 mt-2">You are not yet part of a capstone team. You can either create your own team or join an existing one.</p>
+                  <p className="text-gray-600 mt-2">You are not yet part of a capstone team. As a paid fellow, you may create your own team or wait to be invited by a team founder.</p>
                   <button
                     onClick={() => setIsCreatingTeam(true)}
                     className="mt-6 px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors inline-flex items-center gap-2"
@@ -682,29 +666,16 @@ const CapstonePage = () => {
                   </div>
                 )}
 
-                <div className="space-y-6">
-                  <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <Users size={24} className="text-indigo-600" />
-                    Open Teams
-                  </h3>
-                  {availableTeams.length > 0 ? (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {availableTeams.map(team => (
-                        <div key={team._id} className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-md cursor-pointer" onClick={() => setSelectedTeam(team)}>
-                          <h4 className="font-bold text-gray-900 text-lg mb-2">{team.name}</h4>
-                          <p className="text-sm text-gray-600 line-clamp-2 mb-4">{team.ideaDescription}</p>
-                          <div className="flex items-center justify-between mt-auto">
-                            <span className="text-xs text-gray-500">{team.members.length}/{maxGroupMembers} members</span>
-                            <span className="text-indigo-600 font-bold text-sm hover:underline">View Details</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-12 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-300 text-gray-500">
-                      No open teams available.
-                    </div>
-                  )}
+                <div className="p-6 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-4 max-w-2xl mx-auto">
+                  <div className="p-2 bg-amber-100 rounded-xl shrink-0">
+                    <Shield size={20} className="text-amber-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-amber-900">Invite-Only Team Joining</h4>
+                    <p className="text-sm text-amber-800 mt-1 leading-relaxed">
+                      For this cohort, direct team joining is disabled. Team founders can invite paid fellows directly from the capstone team management panel. If you believe you should be part of a team, contact your intended team leader.
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
@@ -807,15 +778,15 @@ const CapstonePage = () => {
                           <div className="p-6 border-2 border-dashed border-indigo-100 rounded-xl bg-indigo-50/30 flex flex-col items-center">
                             <FileUp size={32} className="text-indigo-400 mb-2" />
                             <p className="text-sm font-medium text-indigo-900">Upload Full Proposal Document</p>
-                            <p className="text-xs text-slate-500 mb-4">{isEditingProposal ? "Leave empty to keep existing document. PDF or Docx preferred. Max 10MB." : "Max 2-3 pages. PDF or Docx preferred. Max 10MB."}</p>
+                            <p className="text-xs text-slate-500 mb-4">{isEditingProposal ? "Leave empty to keep existing document. PDF or Docx preferred. Max 35MB." : "Max 2-3 pages. PDF or Docx preferred. Max 35MB."}</p>
                             <input
                               type="file"
                               accept=".pdf,.doc,.docx"
                               required={!isEditingProposal}
                               onChange={e => {
                                 const file = e.target.files ? e.target.files[0] : null;
-                                if (file && file.size > 10 * 1024 * 1024) {
-                                  addToast("Proposal document must be 10MB or less", "error");
+                                if (file && file.size > 35 * 1024 * 1024) {
+                                  addToast("Proposal document must be 35MB or less", "error");
                                   e.target.value = "";
                                   return setProposalFile(null);
                                 }
@@ -887,15 +858,15 @@ const CapstonePage = () => {
                       <div className="p-6 border-2 border-dashed border-indigo-100 rounded-xl bg-indigo-50/30 flex flex-col items-center">
                         <FileUp size={32} className="text-indigo-400 mb-2" />
                         <p className="text-sm font-medium text-indigo-900">Upload Final Pitch Deck</p>
-                        <p className="text-xs text-slate-500 mb-4">{isEditingPitchDeck ? "Leave empty to keep existing pitch deck. 5-7 slides. PDF or PPTX preferred. Max 10MB." : "5-7 slides. PDF or PPTX preferred. Max 10MB."}</p>
+                        <p className="text-xs text-slate-500 mb-4">{isEditingPitchDeck ? "Leave empty to keep existing pitch deck. 5-7 slides. PDF or PPTX preferred. Max 35MB." : "5-7 slides. PDF or PPTX preferred. Max 35MB."}</p>
                         <input
                           type="file"
                           accept=".pdf,.ppt,.pptx"
                           required={!isEditingPitchDeck}
                           onChange={e => {
                             const file = e.target.files ? e.target.files[0] : null;
-                            if (file && file.size > 10 * 1024 * 1024) {
-                              addToast("Pitch deck must be 10MB or less", "error");
+                            if (file && file.size > 35 * 1024 * 1024) {
+                              addToast("Pitch deck must be 35MB or less", "error");
                               e.target.value = "";
                               return setPitchDeckFile(null);
                             }
@@ -1428,15 +1399,12 @@ const CapstonePage = () => {
               </div>
             </div>
             {!myTeam && (
-              <button
-                onClick={() => {
-                  handleJoinTeam(selectedTeam._id);
-                  setSelectedTeam(null);
-                }}
-                className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition-colors"
-              >
-                Join This Team
-              </button>
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800 flex items-start gap-3">
+                <Shield size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                <p>
+                  <span className="font-bold">Invite-only:</span> Direct joining is disabled. Contact the team founder to invite you, provided you have paid your certificate fee.
+                </p>
+              </div>
             )}
           </div>
         </div>
